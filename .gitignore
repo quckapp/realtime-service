@@ -1,0 +1,36 @@
+# App artifacts
+/_build/
+/deps/
+/*.ez
+/priv/static/assets/
+
+# Generated on crash
+erl_crash.dump
+
+# Secrets
+/config/*.secret.exs
+.env
+.env.local
+.env.*.local
+
+# IDE
+.elixir_ls/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test
+/cover/
+/doc/
+
+# Temporary files
+/tmp/
+*.log
+
+# Release artifacts
+/rel/artifacts/

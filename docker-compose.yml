@@ -1,0 +1,219 @@
+version: '3.8'
+
+services:
+  # ============================================
+  # Elixir Realtime Service
+  # ============================================
+  realtime:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - HOST=localhost
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-at-least-64-chars-long-change-in-production}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-production}
+      - MONGODB_URL=mongodb://mongodb:27017/quckchat
+      - DATABASE_URL=mysql://root:password@mysql:3306/quckchat_realtime
+      - REDIS_URL=redis://redis:6379
+      - NODE_NAME=realtime@realtime
+      - NESTJS_URL=http://backend:3000
+      - STUN_SERVER_URL=stun:stun.l.google.com:19302
+      # Kafka Configuration
+      - KAFKA_ENABLED=true
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9092
+    depends_on:
+      - mongodb
+      - mysql
+      - redis
+      - kafka
+    networks:
+      - quckchat-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # Scale multiple realtime nodes
+  realtime-node-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "4001:4000"
+    environment:
+      - PORT=4000
+      - HOST=localhost
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-at-least-64-chars-long-change-in-production}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-production}
+      - MONGODB_URL=mongodb://mongodb:27017/quckchat
+      - DATABASE_URL=mysql://root:password@mysql:3306/quckchat_realtime
+      - REDIS_URL=redis://redis:6379
+      - NODE_NAME=realtime@realtime-node-2
+      - NESTJS_URL=http://backend:3000
+      - STUN_SERVER_URL=stun:stun.l.google.com:19302
+      - KAFKA_ENABLED=true
+      - KAFKA_HOST=kafka
+      - KAFKA_PORT=9092
+    depends_on:
+      - mongodb
+      - mysql
+      - redis
+      - kafka
+    networks:
+      - quckchat-network
+    profiles:
+      - scaled
+
+  # ============================================
+  # Databases
+  # ============================================
+
+  # MongoDB (for main data - connects to Atlas in production)
+  mongodb:
+    image: mongo:7
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - quckchat-network
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  # MySQL (for real-time queue / store-and-forward)
+  mysql:
+    image: mysql:8
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=quckchat_realtime
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - quckchat-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Redis
+  # ============================================
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - quckchat-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ============================================
+  # Kafka (Event Streaming)
+  # ============================================
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    ports:
+      - "2181:2181"
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+      - zookeeper_logs:/var/lib/zookeeper/log
+    networks:
+      - quckchat-network
+    healthcheck:
+      test: echo srvr | nc localhost 2181 || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:29092
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+      - quckchat-network
+    healthcheck:
+      test: kafka-topics --bootstrap-server localhost:9092 --list || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  # Kafka UI (optional - for debugging)
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: quckchat
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+      KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
+    depends_on:
+      - kafka
+    networks:
+      - quckchat-network
+    profiles:
+      - debug
+
+  # ============================================
+  # Load Balancer (Production)
+  # ============================================
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      - realtime
+    networks:
+      - quckchat-network
+    profiles:
+      - production
+
+volumes:
+  mongodb_data:
+  mysql_data:
+  redis_data:
+  zookeeper_data:
+  zookeeper_logs:
+  kafka_data:
+
+networks:
+  quckchat-network:
+    driver: bridge

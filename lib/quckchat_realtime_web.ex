@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb do
+defmodule QuckAppRealtimeWeb do
   @moduledoc """
   The entrypoint for defining your web interface, such as
   controllers, channels, and socket handlers.
@@ -18,7 +18,7 @@ defmodule QuckChatRealtimeWeb do
   def channel do
     quote do
       use Phoenix.Channel
-      import QuckChatRealtimeWeb.Gettext
+      import QuckAppRealtimeWeb.Gettext
     end
   end
 
@@ -29,16 +29,16 @@ defmodule QuckChatRealtimeWeb do
         layouts: []
 
       import Plug.Conn
-      import QuckChatRealtimeWeb.Gettext
+      import QuckAppRealtimeWeb.Gettext
     end
   end
 
   def verified_routes do
     quote do
       use Phoenix.VerifiedRoutes,
-        endpoint: QuckChatRealtimeWeb.Endpoint,
-        router: QuckChatRealtimeWeb.Router,
-        statics: QuckChatRealtimeWeb.static_paths()
+        endpoint: QuckAppRealtimeWeb.Endpoint,
+        router: QuckAppRealtimeWeb.Router,
+        statics: QuckAppRealtimeWeb.static_paths()
     end
   end
 

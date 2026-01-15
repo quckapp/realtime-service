@@ -1,4 +1,4 @@
-# QuckChat Realtime Server
+# QuckApp Realtime Server
 
 High-performance real-time messaging server built with Elixir/Phoenix.
 
@@ -137,7 +137,7 @@ docker-compose logs -f realtime
 MIX_ENV=prod mix release
 
 # Run
-_build/prod/rel/quckchat_realtime/bin/quckchat_realtime start
+_build/prod/rel/quckapp_realtime/bin/quckapp_realtime start
 ```
 
 ## Environment Variables
@@ -148,7 +148,7 @@ _build/prod/rel/quckchat_realtime/bin/quckchat_realtime start
 | `HOST` | Hostname | localhost |
 | `SECRET_KEY_BASE` | Phoenix secret key | Required |
 | `JWT_SECRET` | JWT signing secret | Required |
-| `MONGODB_URL` | MongoDB connection URL | mongodb://localhost:27017/quckchat |
+| `MONGODB_URL` | MongoDB connection URL | mongodb://localhost:27017/quckapp |
 | `REDIS_URL` | Redis connection URL | redis://localhost:6379 |
 | `NODE_NAME` | Erlang node name | realtime@localhost |
 | `BACKEND_URL` | NestJS backend URL | http://localhost:3000 |

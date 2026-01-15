@@ -1,30 +1,30 @@
-defmodule QuckChatRealtime.Kafka.Producer do
+defmodule QuckAppRealtime.Kafka.Producer do
   @moduledoc """
   Kafka Producer for publishing events.
 
   Topics:
-  - quckchat.messages.created    - New messages
-  - quckchat.messages.delivered  - Message delivery confirmations
-  - quckchat.messages.read       - Message read receipts
-  - quckchat.calls.events        - Call lifecycle events
-  - quckchat.presence.events     - User presence changes
-  - quckchat.typing.events       - Typing indicators
+  - quckapp.messages.created    - New messages
+  - quckapp.messages.delivered  - Message delivery confirmations
+  - quckapp.messages.read       - Message read receipts
+  - quckapp.calls.events        - Call lifecycle events
+  - quckapp.presence.events     - User presence changes
+  - quckapp.typing.events       - Typing indicators
   """
 
   use GenServer
   require Logger
 
-  @client_id :quckchat_kafka_producer
+  @client_id :quckapp_kafka_producer
 
   # Topic names
   @topics %{
-    message_created: "quckchat.messages.created",
-    message_delivered: "quckchat.messages.delivered",
-    message_read: "quckchat.messages.read",
-    call_events: "quckchat.calls.events",
-    presence_events: "quckchat.presence.events",
-    typing_events: "quckchat.typing.events",
-    user_events: "quckchat.users.events"
+    message_created: "quckapp.messages.created",
+    message_delivered: "quckapp.messages.delivered",
+    message_read: "quckapp.messages.read",
+    call_events: "quckapp.calls.events",
+    presence_events: "quckapp.presence.events",
+    typing_events: "quckapp.typing.events",
+    user_events: "quckapp.users.events"
   }
 
   # ============================================
@@ -148,7 +148,7 @@ defmodule QuckChatRealtime.Kafka.Producer do
 
   @impl true
   def init(_opts) do
-    config = Application.get_env(:quckchat_realtime, :kafka, [])
+    config = Application.get_env(:quckapp_realtime, :kafka, [])
     brokers = Keyword.get(config, :brokers, [{"localhost", 9092}])
     enabled = Keyword.get(config, :enabled, false)
 

@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.SignalingController do
+defmodule QuckAppRealtimeWeb.SignalingController do
   @moduledoc """
   Controller for WebRTC signaling and ICE server configuration.
 
@@ -7,9 +7,9 @@ defmodule QuckChatRealtimeWeb.SignalingController do
   - TURN credential generation
   - WebRTC diagnostics
   """
-  use QuckChatRealtimeWeb, :controller
+  use QuckAppRealtimeWeb, :controller
 
-  alias QuckChatRealtime.SignalingServer
+  alias QuckAppRealtime.SignalingServer
 
   @doc "Get full ICE configuration for WebRTC"
   def ice_config(conn, _params) do

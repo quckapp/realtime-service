@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.ClusterManager do
+defmodule QuckAppRealtime.ClusterManager do
   @moduledoc """
   Erlang Cluster Manager - WhatsApp Style.
 
@@ -61,7 +61,7 @@ defmodule QuckChatRealtime.ClusterManager do
   @doc "Find which node a user is connected to"
   def find_user_node(user_id) do
     # Check local registry first
-    case Registry.lookup(QuckChatRealtime.UserRegistry, user_id) do
+    case Registry.lookup(QuckAppRealtime.UserRegistry, user_id) do
       [{_pid, _}] ->
         {:ok, node()}
 
@@ -76,11 +76,11 @@ defmodule QuckChatRealtime.ClusterManager do
     case find_user_node(user_id) do
       {:ok, target_node} when target_node == node() ->
         # User is on this node
-        QuckChatRealtime.Actors.UserSession.send_message(user_id, message)
+        QuckAppRealtime.Actors.UserSession.send_message(user_id, message)
 
       {:ok, target_node} ->
         # User is on remote node
-        :rpc.cast(target_node, QuckChatRealtime.Actors.UserSession, :send_message, [user_id, message])
+        :rpc.cast(target_node, QuckAppRealtime.Actors.UserSession, :send_message, [user_id, message])
         :ok
 
       {:error, :not_found} ->
@@ -97,7 +97,7 @@ defmodule QuckChatRealtime.ClusterManager do
     # Set up node monitoring
     :net_kernel.monitor_nodes(true)
 
-    cluster_name = Keyword.get(opts, :cluster_name, :quckchat_cluster)
+    cluster_name = Keyword.get(opts, :cluster_name, :quckapp_cluster)
     discovery = Keyword.get(opts, :discovery, :static)
 
     state = %State{
@@ -240,7 +240,7 @@ defmodule QuckChatRealtime.ClusterManager do
 
   @doc "Check if a user is connected to this node"
   def user_on_this_node?(user_id) do
-    case Registry.lookup(QuckChatRealtime.UserRegistry, user_id) do
+    case Registry.lookup(QuckAppRealtime.UserRegistry, user_id) do
       [{_pid, _}] -> true
       [] -> false
     end
@@ -248,7 +248,7 @@ defmodule QuckChatRealtime.ClusterManager do
 
   @doc "Get users connected to this node"
   def get_local_users do
-    Registry.select(QuckChatRealtime.UserRegistry, [{{:"$1", :_, :_}, [], [:"$1"]}])
+    Registry.select(QuckAppRealtime.UserRegistry, [{{:"$1", :_, :_}, [], [:"$1"]}])
   end
 
   # ============================================
@@ -270,7 +270,7 @@ defmodule QuckChatRealtime.ClusterManager do
 
   defp discover_static_nodes do
     # Read from config
-    nodes = Application.get_env(:quckchat_realtime, :cluster_nodes, [])
+    nodes = Application.get_env(:quckapp_realtime, :cluster_nodes, [])
 
     Enum.each(nodes, fn node_name ->
       unless node_name == node() do
@@ -281,7 +281,7 @@ defmodule QuckChatRealtime.ClusterManager do
 
   defp discover_dns_nodes(cluster_name) do
     # DNS-based discovery (useful for Kubernetes headless services)
-    dns_name = Application.get_env(:quckchat_realtime, :cluster_dns, "quckchat-realtime.default.svc.cluster.local")
+    dns_name = Application.get_env(:quckapp_realtime, :cluster_dns, "quckapp-realtime.default.svc.cluster.local")
 
     case :inet_res.lookup(to_charlist(dns_name), :in, :a) do
       [] ->
@@ -301,18 +301,18 @@ defmodule QuckChatRealtime.ClusterManager do
     # Kubernetes API-based discovery
     # Requires K8S_NAMESPACE and K8S_SERVICE_NAME env vars
     namespace = System.get_env("K8S_NAMESPACE", "default")
-    service = System.get_env("K8S_SERVICE_NAME", "quckchat-realtime")
+    service = System.get_env("K8S_SERVICE_NAME", "quckapp-realtime")
 
     # This would call K8S API to get endpoints
     # For now, fall back to DNS discovery
-    discover_dns_nodes(:quckchat_cluster)
+    discover_dns_nodes(:quckapp_cluster)
   end
 
   defp sync_with_node(node_name) do
     # Sync global state tables with new node
     Task.start(fn ->
       # Sync presence data
-      local_presence = QuckChatRealtime.PresenceManager.get_online_users()
+      local_presence = QuckAppRealtime.PresenceManager.get_online_users()
       :rpc.cast(node_name, __MODULE__, :receive_presence_sync, [node(), local_presence])
     end)
   end

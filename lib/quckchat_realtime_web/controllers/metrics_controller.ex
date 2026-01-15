@@ -1,19 +1,19 @@
-defmodule QuckChatRealtimeWeb.MetricsController do
-  use QuckChatRealtimeWeb, :controller
+defmodule QuckAppRealtimeWeb.MetricsController do
+  use QuckAppRealtimeWeb, :controller
 
   def index(conn, _params) do
     metrics = """
-    # HELP quckchat_connected_users Number of connected users
-    # TYPE quckchat_connected_users gauge
-    quckchat_connected_users #{QuckChatRealtime.CallManager.connected_users_count()}
+    # HELP quckapp_connected_users Number of connected users
+    # TYPE quckapp_connected_users gauge
+    quckapp_connected_users #{QuckAppRealtime.CallManager.connected_users_count()}
 
-    # HELP quckchat_active_calls Number of active calls
-    # TYPE quckchat_active_calls gauge
-    quckchat_active_calls #{QuckChatRealtime.CallManager.active_calls_count()}
+    # HELP quckapp_active_calls Number of active calls
+    # TYPE quckapp_active_calls gauge
+    quckapp_active_calls #{QuckAppRealtime.CallManager.active_calls_count()}
 
-    # HELP quckchat_active_huddles Number of active huddles
-    # TYPE quckchat_active_huddles gauge
-    quckchat_active_huddles #{QuckChatRealtime.HuddleManager.active_huddles_count()}
+    # HELP quckapp_active_huddles Number of active huddles
+    # TYPE quckapp_active_huddles gauge
+    quckapp_active_huddles #{QuckAppRealtime.HuddleManager.active_huddles_count()}
 
     # HELP erlang_memory_bytes Erlang memory usage
     # TYPE erlang_memory_bytes gauge

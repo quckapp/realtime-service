@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.ChatChannel do
+defmodule QuckAppRealtimeWeb.ChatChannel do
   @moduledoc """
   Phoenix Channel for real-time messaging.
 
@@ -13,10 +13,10 @@ defmodule QuckChatRealtimeWeb.ChatChannel do
   - typing:stop - Typing indicator stop
   """
 
-  use QuckChatRealtimeWeb, :channel
+  use QuckAppRealtimeWeb, :channel
   require Logger
 
-  alias QuckChatRealtime.{Presence, Mongo, NotificationDispatcher}
+  alias QuckAppRealtime.{Presence, Mongo, NotificationDispatcher}
 
   @impl true
   def join("chat:lobby", _params, socket) do
@@ -235,12 +235,12 @@ defmodule QuckChatRealtimeWeb.ChatChannel do
 
   def handle_in("conversation:join", %{"conversationId" => conversation_id}, socket) do
     # Subscribe to the conversation topic
-    Phoenix.PubSub.subscribe(QuckChatRealtime.PubSub, "conversation:#{conversation_id}")
+    Phoenix.PubSub.subscribe(QuckAppRealtime.PubSub, "conversation:#{conversation_id}")
     {:reply, :ok, assign(socket, :conversation_id, conversation_id)}
   end
 
   def handle_in("conversation:leave", %{"conversationId" => conversation_id}, socket) do
-    Phoenix.PubSub.unsubscribe(QuckChatRealtime.PubSub, "conversation:#{conversation_id}")
+    Phoenix.PubSub.unsubscribe(QuckAppRealtime.PubSub, "conversation:#{conversation_id}")
     {:reply, :ok, socket}
   end
 

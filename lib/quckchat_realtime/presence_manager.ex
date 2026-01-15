@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.PresenceManager do
+defmodule QuckAppRealtime.PresenceManager do
   @moduledoc """
   WhatsApp-Style Presence Manager using ETS.
 
@@ -16,7 +16,7 @@ defmodule QuckChatRealtime.PresenceManager do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.Redis
+  alias QuckAppRealtime.Redis
 
   @presence_table :user_presence
   @typing_table :typing_indicators
@@ -261,7 +261,7 @@ defmodule QuckChatRealtime.PresenceManager do
 
   defp broadcast_presence_change(user_id, status) do
     Phoenix.PubSub.broadcast(
-      QuckChatRealtime.PubSub,
+      QuckAppRealtime.PubSub,
       "presence:updates",
       {:presence_changed, user_id, status}
     )
@@ -269,7 +269,7 @@ defmodule QuckChatRealtime.PresenceManager do
 
   defp broadcast_typing(conversation_id, user_id, is_typing) do
     Phoenix.PubSub.broadcast(
-      QuckChatRealtime.PubSub,
+      QuckAppRealtime.PubSub,
       "conversation:#{conversation_id}",
       {:typing, user_id, is_typing}
     )

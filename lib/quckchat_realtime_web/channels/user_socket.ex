@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.UserSocket do
+defmodule QuckAppRealtimeWeb.UserSocket do
   @moduledoc """
   Main WebSocket handler for all real-time communication.
 
@@ -12,13 +12,13 @@ defmodule QuckChatRealtimeWeb.UserSocket do
   use Phoenix.Socket
   require Logger
 
-  alias QuckChatRealtime.Guardian
+  alias QuckAppRealtime.Guardian
 
   # Channels
-  channel "chat:*", QuckChatRealtimeWeb.ChatChannel
-  channel "webrtc:*", QuckChatRealtimeWeb.WebRTCChannel
-  channel "huddle:*", QuckChatRealtimeWeb.HuddleChannel
-  channel "presence:*", QuckChatRealtimeWeb.PresenceChannel
+  channel "chat:*", QuckAppRealtimeWeb.ChatChannel
+  channel "webrtc:*", QuckAppRealtimeWeb.WebRTCChannel
+  channel "huddle:*", QuckAppRealtimeWeb.HuddleChannel
+  channel "presence:*", QuckAppRealtimeWeb.PresenceChannel
 
   @impl true
   def connect(params, socket, connect_info) do

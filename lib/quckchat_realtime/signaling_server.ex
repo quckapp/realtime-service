@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.SignalingServer do
+defmodule QuckAppRealtime.SignalingServer do
   @moduledoc """
   WebRTC Signaling Server for call establishment.
 
@@ -12,7 +12,7 @@ defmodule QuckChatRealtime.SignalingServer do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.Redis
+  alias QuckAppRealtime.Redis
   alias Phoenix.PubSub
 
   @signal_ttl 60  # 60 seconds TTL for pending signals
@@ -93,7 +93,7 @@ defmodule QuckChatRealtime.SignalingServer do
 
   @doc "Get ICE server configuration"
   def get_ice_servers do
-    webrtc_config = Application.get_env(:quckchat_realtime, :webrtc, [])
+    webrtc_config = Application.get_env(:quckapp_realtime, :webrtc, [])
 
     stun_servers = Keyword.get(webrtc_config, :stun_servers, [
       "stun:stun.l.google.com:19302",
@@ -126,7 +126,7 @@ defmodule QuckChatRealtime.SignalingServer do
   Uses HMAC-SHA1 for credential generation as per RFC 5766.
   """
   def generate_turn_credentials(user_id) do
-    webrtc_config = Application.get_env(:quckchat_realtime, :webrtc, [])
+    webrtc_config = Application.get_env(:quckapp_realtime, :webrtc, [])
     turn_server = Keyword.get(webrtc_config, :turn_server)
     turn_secret = Keyword.get(webrtc_config, :turn_secret)
 
@@ -163,7 +163,7 @@ defmodule QuckChatRealtime.SignalingServer do
 
   @doc "Get full ICE configuration including TURN credentials for a user"
   def get_ice_config(user_id) do
-    webrtc_config = Application.get_env(:quckchat_realtime, :webrtc, [])
+    webrtc_config = Application.get_env(:quckapp_realtime, :webrtc, [])
 
     stun_servers = Keyword.get(webrtc_config, :stun_servers, [
       "stun:stun.l.google.com:19302"
@@ -199,7 +199,7 @@ defmodule QuckChatRealtime.SignalingServer do
   defp deliver_signal(call_id, to_user_id, signal) do
     # Try to deliver via PubSub first (user might be connected)
     PubSub.broadcast(
-      QuckChatRealtime.PubSub,
+      QuckAppRealtime.PubSub,
       "signal:#{call_id}:#{to_user_id}",
       {:signal, signal}
     )

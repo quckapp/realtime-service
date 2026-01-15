@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.RecordingController do
+defmodule QuckAppRealtimeWeb.RecordingController do
   @moduledoc """
   Controller for call/huddle recording management.
 
@@ -8,11 +8,11 @@ defmodule QuckChatRealtimeWeb.RecordingController do
   - Recording storage management
   - Recording access permissions
   """
-  use QuckChatRealtimeWeb, :controller
+  use QuckAppRealtimeWeb, :controller
   require Logger
 
-  alias QuckChatRealtime.{Mongo, Redis}
-  alias QuckChatRealtime.Actors.CallSession
+  alias QuckAppRealtime.{Mongo, Redis}
+  alias QuckAppRealtime.Actors.CallSession
 
   @doc "Start recording a call"
   def start(conn, %{"call_id" => call_id}) do
@@ -349,8 +349,8 @@ defmodule QuckChatRealtimeWeb.RecordingController do
     storage_path = recording["storage_path"]
 
     if storage_path do
-      config = Application.get_env(:quckchat_realtime, :storage, [])
-      base_url = Keyword.get(config, :base_url, "https://storage.quikapp.com")
+      config = Application.get_env(:quckapp_realtime, :storage, [])
+      base_url = Keyword.get(config, :base_url, "https://storage.quckapp.com")
       "#{base_url}/#{storage_path}?token=#{generate_access_token(recording["_id"])}"
     else
       nil

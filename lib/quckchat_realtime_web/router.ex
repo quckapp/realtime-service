@@ -1,5 +1,5 @@
-defmodule QuckChatRealtimeWeb.Router do
-  use QuckChatRealtimeWeb, :router
+defmodule QuckAppRealtimeWeb.Router do
+  use QuckAppRealtimeWeb, :router
 
   pipeline :api do
     plug :accepts, ["json"]
@@ -8,11 +8,11 @@ defmodule QuckChatRealtimeWeb.Router do
   pipeline :authenticated do
     plug :accepts, ["json"]
     # Add authentication plug here
-    # plug QuckChatRealtimeWeb.Plugs.AuthPlug
+    # plug QuckAppRealtimeWeb.Plugs.AuthPlug
   end
 
   # Health check endpoints
-  scope "/", QuckChatRealtimeWeb do
+  scope "/", QuckAppRealtimeWeb do
     pipe_through :api
 
     get "/health", HealthController, :index
@@ -21,14 +21,14 @@ defmodule QuckChatRealtimeWeb.Router do
   end
 
   # Metrics endpoint (for Prometheus)
-  scope "/metrics", QuckChatRealtimeWeb do
+  scope "/metrics", QuckAppRealtimeWeb do
     pipe_through :api
 
     get "/", MetricsController, :index
   end
 
   # API endpoints for managing state
-  scope "/api", QuckChatRealtimeWeb do
+  scope "/api", QuckAppRealtimeWeb do
     pipe_through :api
 
     # Call management

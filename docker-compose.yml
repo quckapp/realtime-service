@@ -15,8 +15,8 @@ services:
       - HOST=localhost
       - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-at-least-64-chars-long-change-in-production}
       - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-production}
-      - MONGODB_URL=mongodb://mongodb:27017/quckchat
-      - DATABASE_URL=mysql://root:password@mysql:3306/quckchat_realtime
+      - MONGODB_URL=mongodb://mongodb:27017/quckapp
+      - DATABASE_URL=mysql://root:password@mysql:3306/quckapp_realtime
       - REDIS_URL=redis://redis:6379
       - NODE_NAME=realtime@realtime
       - NESTJS_URL=http://backend:3000
@@ -31,7 +31,7 @@ services:
       - redis
       - kafka
     networks:
-      - quckchat-network
+      - quckapp-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
       interval: 30s
@@ -51,8 +51,8 @@ services:
       - HOST=localhost
       - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-at-least-64-chars-long-change-in-production}
       - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-production}
-      - MONGODB_URL=mongodb://mongodb:27017/quckchat
-      - DATABASE_URL=mysql://root:password@mysql:3306/quckchat_realtime
+      - MONGODB_URL=mongodb://mongodb:27017/quckapp
+      - DATABASE_URL=mysql://root:password@mysql:3306/quckapp_realtime
       - REDIS_URL=redis://redis:6379
       - NODE_NAME=realtime@realtime-node-2
       - NESTJS_URL=http://backend:3000
@@ -66,7 +66,7 @@ services:
       - redis
       - kafka
     networks:
-      - quckchat-network
+      - quckapp-network
     profiles:
       - scaled
 
@@ -82,7 +82,7 @@ services:
     volumes:
       - mongodb_data:/data/db
     networks:
-      - quckchat-network
+      - quckapp-network
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 10s
@@ -97,11 +97,11 @@ services:
       - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=password
-      - MYSQL_DATABASE=quckchat_realtime
+      - MYSQL_DATABASE=quckapp_realtime
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
-      - quckchat-network
+      - quckapp-network
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 10s
@@ -118,7 +118,7 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - quckchat-network
+      - quckapp-network
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -139,7 +139,7 @@ services:
       - zookeeper_data:/var/lib/zookeeper/data
       - zookeeper_logs:/var/lib/zookeeper/log
     networks:
-      - quckchat-network
+      - quckapp-network
     healthcheck:
       test: echo srvr | nc localhost 2181 || exit 1
       interval: 10s
@@ -166,7 +166,7 @@ services:
     depends_on:
       - zookeeper
     networks:
-      - quckchat-network
+      - quckapp-network
     healthcheck:
       test: kafka-topics --bootstrap-server localhost:9092 --list || exit 1
       interval: 30s
@@ -179,13 +179,13 @@ services:
     ports:
       - "8080:8080"
     environment:
-      KAFKA_CLUSTERS_0_NAME: quckchat
+      KAFKA_CLUSTERS_0_NAME: quckapp
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     depends_on:
       - kafka
     networks:
-      - quckchat-network
+      - quckapp-network
     profiles:
       - debug
 
@@ -202,7 +202,7 @@ services:
     depends_on:
       - realtime
     networks:
-      - quckchat-network
+      - quckapp-network
     profiles:
       - production
 
@@ -215,5 +215,5 @@ volumes:
   kafka_data:
 
 networks:
-  quckchat-network:
+  quckapp-network:
     driver: bridge

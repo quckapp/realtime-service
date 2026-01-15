@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.WebRTCChannel do
+defmodule QuckAppRealtimeWeb.WebRTCChannel do
   @moduledoc """
   Phoenix Channel for WebRTC voice/video call signaling.
 
@@ -14,10 +14,10 @@ defmodule QuckChatRealtimeWeb.WebRTCChannel do
   - call:toggle-video - Enable/disable video
   """
 
-  use QuckChatRealtimeWeb, :channel
+  use QuckAppRealtimeWeb, :channel
   require Logger
 
-  alias QuckChatRealtime.{CallManager, NotificationDispatcher, Presence}
+  alias QuckAppRealtime.{CallManager, NotificationDispatcher, Presence}
 
   @call_timeout_ms 60_000  # 60 seconds ring timeout
 
@@ -316,7 +316,7 @@ defmodule QuckChatRealtimeWeb.WebRTCChannel do
   # ================== PRIVATE FUNCTIONS ==================
 
   defp get_ice_servers do
-    config = Application.get_env(:quckchat_realtime, :ice_servers, [])
+    config = Application.get_env(:quckapp_realtime, :ice_servers, [])
 
     stun = Keyword.get(config, :stun, "stun:stun.l.google.com:19302")
     turn_url = Keyword.get(config, :turn_url)

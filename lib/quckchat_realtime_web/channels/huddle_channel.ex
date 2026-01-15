@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.HuddleChannel do
+defmodule QuckAppRealtimeWeb.HuddleChannel do
   @moduledoc """
   Phoenix Channel for Huddle - persistent group audio/video rooms.
 
@@ -20,10 +20,10 @@ defmodule QuckChatRealtimeWeb.HuddleChannel do
   - huddle:raise-hand - Raise hand (for moderated rooms)
   """
 
-  use QuckChatRealtimeWeb, :channel
+  use QuckAppRealtimeWeb, :channel
   require Logger
 
-  alias QuckChatRealtime.{HuddleManager, NotificationDispatcher, Presence}
+  alias QuckAppRealtime.{HuddleManager, NotificationDispatcher, Presence}
 
   @impl true
   def join("huddle:lobby", _params, socket) do
@@ -107,7 +107,7 @@ defmodule QuckChatRealtimeWeb.HuddleChannel do
       {:ok, huddle} ->
         # Notify conversation about new huddle
         Phoenix.PubSub.broadcast(
-          QuckChatRealtime.PubSub,
+          QuckAppRealtime.PubSub,
           "conversation:#{conversation_id}",
           {:huddle_started, huddle}
         )
@@ -348,7 +348,7 @@ defmodule QuckChatRealtimeWeb.HuddleChannel do
   # ================== PRIVATE FUNCTIONS ==================
 
   defp get_ice_servers do
-    config = Application.get_env(:quckchat_realtime, :ice_servers, [])
+    config = Application.get_env(:quckapp_realtime, :ice_servers, [])
 
     stun = Keyword.get(config, :stun, "stun:stun.l.google.com:19302")
     turn_url = Keyword.get(config, :turn_url)

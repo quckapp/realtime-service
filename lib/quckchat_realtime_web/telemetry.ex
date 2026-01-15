@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.Telemetry do
+defmodule QuckAppRealtimeWeb.Telemetry do
   @moduledoc """
   Telemetry metrics for monitoring the realtime server.
   """
@@ -52,11 +52,11 @@ defmodule QuckChatRealtimeWeb.Telemetry do
       ),
 
       # Custom Metrics
-      last_value("quckchat.connected_users.count"),
-      last_value("quckchat.active_calls.count"),
-      last_value("quckchat.active_huddles.count"),
-      counter("quckchat.messages_sent.count"),
-      counter("quckchat.calls_initiated.count"),
+      last_value("quckapp.connected_users.count"),
+      last_value("quckapp.active_calls.count"),
+      last_value("quckapp.active_huddles.count"),
+      counter("quckapp.messages_sent.count"),
+      counter("quckapp.calls_initiated.count"),
 
       # VM Metrics
       summary("vm.memory.total", unit: {:byte, :kilobyte}),
@@ -75,17 +75,17 @@ defmodule QuckChatRealtimeWeb.Telemetry do
   end
 
   def measure_connected_users do
-    count = QuckChatRealtime.CallManager.connected_users_count()
-    :telemetry.execute([:quckchat, :connected_users], %{count: count}, %{})
+    count = QuckAppRealtime.CallManager.connected_users_count()
+    :telemetry.execute([:quckapp, :connected_users], %{count: count}, %{})
   end
 
   def measure_active_calls do
-    count = QuckChatRealtime.CallManager.active_calls_count()
-    :telemetry.execute([:quckchat, :active_calls], %{count: count}, %{})
+    count = QuckAppRealtime.CallManager.active_calls_count()
+    :telemetry.execute([:quckapp, :active_calls], %{count: count}, %{})
   end
 
   def measure_active_huddles do
-    count = QuckChatRealtime.HuddleManager.active_huddles_count()
-    :telemetry.execute([:quckchat, :active_huddles], %{count: count}, %{})
+    count = QuckAppRealtime.HuddleManager.active_huddles_count()
+    :telemetry.execute([:quckapp, :active_huddles], %{count: count}, %{})
   end
 end

@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.ConnectionSupervisor do
+defmodule QuckAppRealtime.ConnectionSupervisor do
   @moduledoc """
   Supervisor for User Session Actors.
 
@@ -10,7 +10,7 @@ defmodule QuckChatRealtime.ConnectionSupervisor do
   use DynamicSupervisor
   require Logger
 
-  alias QuckChatRealtime.Actors.UserSession
+  alias QuckAppRealtime.Actors.UserSession
 
   def start_link(init_arg) do
     DynamicSupervisor.start_link(__MODULE__, init_arg, name: __MODULE__)

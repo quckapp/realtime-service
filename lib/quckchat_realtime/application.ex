@@ -1,6 +1,6 @@
-defmodule QuckChatRealtime.Application do
+defmodule QuckAppRealtime.Application do
   @moduledoc """
-  QuckChat Realtime Application - WhatsApp-Style Architecture.
+  QuckApp Realtime Application - WhatsApp-Style Architecture.
 
   Handles:
   - Real-time messaging (Phoenix Channels + Actor Model)
@@ -25,101 +25,101 @@ defmodule QuckChatRealtime.Application do
   def start(_type, _args) do
     children = [
       # Telemetry supervisor
-      QuckChatRealtimeWeb.Telemetry,
+      QuckAppRealtimeWeb.Telemetry,
 
       # ========================================
       # Core Infrastructure
       # ========================================
 
       # MySQL Repo for persistent storage
-      QuckChatRealtime.Repo,
+      QuckAppRealtime.Repo,
 
       # PubSub for distributed messaging
-      {Phoenix.PubSub, name: QuckChatRealtime.PubSub},
+      {Phoenix.PubSub, name: QuckAppRealtime.PubSub},
 
       # Redis connection pool (for cross-node sync)
-      QuckChatRealtime.Redis,
+      QuckAppRealtime.Redis,
 
       # HTTP client for NestJS backend communication
-      {Finch, name: QuckChatRealtime.Finch},
+      {Finch, name: QuckAppRealtime.Finch},
 
       # ========================================
       # WhatsApp-Style Components
       # ========================================
 
       # User process registry (for Actor lookup)
-      {Registry, keys: :unique, name: QuckChatRealtime.UserRegistry},
+      {Registry, keys: :unique, name: QuckAppRealtime.UserRegistry},
 
       # Call session registry (for CallSession actors)
-      {Registry, keys: :unique, name: QuckChatRealtime.CallRegistry},
+      {Registry, keys: :unique, name: QuckAppRealtime.CallRegistry},
 
       # Dynamic supervisor for user session actors
-      QuckChatRealtime.ConnectionSupervisor,
+      QuckAppRealtime.ConnectionSupervisor,
 
       # Presence manager (ETS-based, O(1) lookups)
-      QuckChatRealtime.PresenceManager,
+      QuckAppRealtime.PresenceManager,
 
       # Presence cleanup job (stale presence removal)
-      QuckChatRealtime.PresenceCleanup,
+      QuckAppRealtime.PresenceCleanup,
 
       # Enhanced typing tracker with MapSet
-      QuckChatRealtime.TypingTracker,
+      QuckAppRealtime.TypingTracker,
 
       # Store-and-Forward queue for offline messages
-      QuckChatRealtime.StoreAndForward,
+      QuckAppRealtime.StoreAndForward,
 
       # WebRTC signaling server with TURN credentials
-      QuckChatRealtime.SignalingServer,
+      QuckAppRealtime.SignalingServer,
 
       # Call manager with state machine
-      QuckChatRealtime.CallManagerV2,
+      QuckAppRealtime.CallManagerV2,
 
       # Erlang cluster manager for distributed state
-      QuckChatRealtime.ClusterManager,
+      QuckAppRealtime.ClusterManager,
 
       # Kafka event streaming
-      QuckChatRealtime.Kafka.Producer,
-      QuckChatRealtime.Kafka.Consumer,
+      QuckAppRealtime.Kafka.Producer,
+      QuckAppRealtime.Kafka.Consumer,
 
       # ========================================
       # Notification Providers
       # ========================================
 
       # APNs provider for iOS push notifications
-      QuckChatRealtime.Providers.APNs,
+      QuckAppRealtime.Providers.APNs,
 
       # Email notification provider
-      QuckChatRealtime.Providers.Email,
+      QuckAppRealtime.Providers.Email,
 
       # ========================================
       # Legacy Components (backward compatibility)
       # ========================================
 
       # Phoenix Presence (for Channel tracking)
-      QuckChatRealtime.Presence,
+      QuckAppRealtime.Presence,
 
       # Legacy call manager
-      QuckChatRealtime.CallManager,
+      QuckAppRealtime.CallManager,
 
       # Huddle session manager
-      QuckChatRealtime.HuddleManager,
+      QuckAppRealtime.HuddleManager,
 
       # Notification dispatcher (FCM + APNs + Email)
-      QuckChatRealtime.NotificationDispatcher,
+      QuckAppRealtime.NotificationDispatcher,
 
       # ========================================
       # Phoenix Endpoint (must be last)
       # ========================================
-      QuckChatRealtimeWeb.Endpoint
+      QuckAppRealtimeWeb.Endpoint
     ]
 
-    opts = [strategy: :one_for_one, name: QuckChatRealtime.Supervisor]
+    opts = [strategy: :one_for_one, name: QuckAppRealtime.Supervisor]
     Supervisor.start_link(children, opts)
   end
 
   @impl true
   def config_change(changed, _new, removed) do
-    QuckChatRealtimeWeb.Endpoint.config_change(changed, removed)
+    QuckAppRealtimeWeb.Endpoint.config_change(changed, removed)
     :ok
   end
 end

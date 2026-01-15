@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.StoreAndForward do
+defmodule QuckAppRealtime.StoreAndForward do
   @moduledoc """
   Store-and-Forward Message Queue - WhatsApp Style.
 
@@ -18,8 +18,8 @@ defmodule QuckChatRealtime.StoreAndForward do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.Repo
-  alias QuckChatRealtime.Schemas.PendingMessage
+  alias QuckAppRealtime.Repo
+  alias QuckAppRealtime.Schemas.PendingMessage
   import Ecto.Query
 
   @table_name :pending_messages_cache

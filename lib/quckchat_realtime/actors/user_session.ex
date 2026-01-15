@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.Actors.UserSession do
+defmodule QuckAppRealtime.Actors.UserSession do
   @moduledoc """
   Actor (GenServer) for each connected user - WhatsApp Style.
 
@@ -15,8 +15,8 @@ defmodule QuckChatRealtime.Actors.UserSession do
   use GenServer, restart: :temporary
   require Logger
 
-  alias QuckChatRealtime.{MessageRouter, PresenceManager, StoreAndForward, NestJSClient}
-  alias QuckChatRealtimeWeb.Endpoint
+  alias QuckAppRealtime.{MessageRouter, PresenceManager, StoreAndForward, NestJSClient}
+  alias QuckAppRealtimeWeb.Endpoint
 
   @heartbeat_interval 30_000        # 30 seconds
   @idle_timeout 300_000             # 5 minutes
@@ -45,7 +45,7 @@ defmodule QuckChatRealtime.Actors.UserSession do
   end
 
   def via_tuple(user_id) do
-    {:via, Registry, {QuckChatRealtime.UserRegistry, user_id}}
+    {:via, Registry, {QuckAppRealtime.UserRegistry, user_id}}
   end
 
   @doc "Send a message to this user"
@@ -90,7 +90,7 @@ defmodule QuckChatRealtime.Actors.UserSession do
 
   @doc "Lookup user process"
   def lookup(user_id) do
-    case Registry.lookup(QuckChatRealtime.UserRegistry, user_id) do
+    case Registry.lookup(QuckAppRealtime.UserRegistry, user_id) do
       [{pid, _}] -> {:ok, pid}
       [] -> :not_found
     end

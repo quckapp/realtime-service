@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.CallManagerV2 do
+defmodule QuckAppRealtime.CallManagerV2 do
   @moduledoc """
   WhatsApp-Style Call Manager.
 
@@ -15,8 +15,8 @@ defmodule QuckChatRealtime.CallManagerV2 do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.{Mongo, PresenceManager, NestJSClient, MessageRouter}
-  alias QuckChatRealtime.Actors.UserSession
+  alias QuckAppRealtime.{Mongo, PresenceManager, NestJSClient, MessageRouter}
+  alias QuckAppRealtime.Actors.UserSession
 
   @calls_table :active_calls
   @call_timeout 60_000         # 60 seconds to answer
@@ -456,7 +456,7 @@ defmodule QuckChatRealtime.CallManagerV2 do
   end
 
   defp get_ice_servers do
-    config = Application.get_env(:quckchat_realtime, :ice_servers, [])
+    config = Application.get_env(:quckapp_realtime, :ice_servers, [])
 
     stun = Keyword.get(config, :stun, "stun:stun.l.google.com:19302")
     turn_url = Keyword.get(config, :turn_url)

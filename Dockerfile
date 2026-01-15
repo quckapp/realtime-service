@@ -43,7 +43,7 @@ RUN chown nobody:nobody /app
 
 USER nobody:nobody
 
-COPY --from=builder --chown=nobody:nobody /app/_build/prod/rel/quckchat_realtime ./
+COPY --from=builder --chown=nobody:nobody /app/_build/prod/rel/quckapp_realtime ./
 
 ENV HOME=/app
 ENV PORT=4000
@@ -53,4 +53,4 @@ EXPOSE 4000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:4000/health || exit 1
 
-CMD ["bin/quckchat_realtime", "start"]
+CMD ["bin/quckapp_realtime", "start"]

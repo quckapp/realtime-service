@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.Schemas.PendingMessage do
+defmodule QuckAppRealtime.Schemas.PendingMessage do
   @moduledoc """
   Schema for Store-and-Forward message queue.
 

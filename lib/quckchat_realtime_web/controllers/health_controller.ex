@@ -1,12 +1,12 @@
-defmodule QuckChatRealtimeWeb.HealthController do
-  use QuckChatRealtimeWeb, :controller
+defmodule QuckAppRealtimeWeb.HealthController do
+  use QuckAppRealtimeWeb, :controller
 
-  alias QuckChatRealtime.{CallManager, HuddleManager, Redis}
+  alias QuckAppRealtime.{CallManager, HuddleManager, Redis}
 
   def index(conn, _params) do
     json(conn, %{
       status: "ok",
-      service: "quckchat-realtime",
+      service: "quckapp-realtime",
       version: "1.0.0",
       timestamp: DateTime.utc_now()
     })

@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.PresenceChannel do
+defmodule QuckAppRealtimeWeb.PresenceChannel do
   @moduledoc """
   Phoenix Channel for user presence tracking.
 
@@ -9,10 +9,10 @@ defmodule QuckChatRealtimeWeb.PresenceChannel do
   - Device information
   """
 
-  use QuckChatRealtimeWeb, :channel
+  use QuckAppRealtimeWeb, :channel
   require Logger
 
-  alias QuckChatRealtime.Presence
+  alias QuckAppRealtime.Presence
 
   @impl true
   def join("presence:global", _params, socket) do

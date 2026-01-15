@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.HuddleManager do
+defmodule QuckAppRealtime.HuddleManager do
   @moduledoc """
   GenServer for managing Huddles (persistent group audio/video rooms).
 
@@ -12,7 +12,7 @@ defmodule QuckChatRealtime.HuddleManager do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.Redis
+  alias QuckAppRealtime.Redis
 
   defstruct [
     :huddle_id,
@@ -279,7 +279,7 @@ defmodule QuckChatRealtime.HuddleManager do
   def handle_cast({:send_to_participant, huddle_id, user_id, event, payload}, state) do
     # This would send via PubSub to the specific user's channel
     Phoenix.PubSub.broadcast(
-      QuckChatRealtime.PubSub,
+      QuckAppRealtime.PubSub,
       "user:#{user_id}",
       {event, payload}
     )

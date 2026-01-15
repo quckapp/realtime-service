@@ -1,7 +1,7 @@
-defmodule QuckChatRealtimeWeb.Gettext do
+defmodule QuckAppRealtimeWeb.Gettext do
   @moduledoc """
   Gettext module for internationalization.
   """
 
-  use Gettext, otp_app: :quckchat_realtime
+  use Gettext, otp_app: :quckapp_realtime
 end

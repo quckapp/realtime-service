@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.Providers.Email do
+defmodule QuckAppRealtime.Providers.Email do
   @moduledoc """
   Email Notification Provider.
 
@@ -17,7 +17,7 @@ defmodule QuckChatRealtime.Providers.Email do
   use GenServer
   require Logger
 
-  @default_from "QuikApp <noreply@quikapp.com>"
+  @default_from "QuckApp <noreply@quckapp.com>"
 
   defstruct [:backend, :config, :from_address]
 
@@ -55,7 +55,7 @@ defmodule QuckChatRealtime.Providers.Email do
 
   @impl true
   def init(_opts) do
-    config = Application.get_env(:quckchat_realtime, :email, [])
+    config = Application.get_env(:quckapp_realtime, :email, [])
     backend = Keyword.get(config, :backend, :disabled)
 
     state = %__MODULE__{
@@ -247,7 +247,7 @@ defmodule QuckChatRealtime.Providers.Email do
   # ============================================
 
   defp get_user_email(user_id) do
-    case QuckChatRealtime.Mongo.find_user(user_id) do
+    case QuckAppRealtime.Mongo.find_user(user_id) do
       {:ok, user} ->
         case Map.get(user, "email") do
           nil -> {:error, :no_email}
@@ -266,7 +266,7 @@ defmodule QuckChatRealtime.Providers.Email do
     #{notification.body}
 
     ---
-    This is an automated notification from QuikApp.
+    This is an automated notification from QuckApp.
     """
   end
 
@@ -279,7 +279,7 @@ defmodule QuckChatRealtime.Providers.Email do
           """
           You missed a call from #{caller}.
 
-          Open QuikApp to call them back.
+          Open QuckApp to call them back.
           """
         }
 
@@ -293,7 +293,7 @@ defmodule QuckChatRealtime.Providers.Email do
 
           "#{preview}"
 
-          Open QuikApp to reply.
+          Open QuckApp to reply.
           """
         }
 
@@ -305,12 +305,12 @@ defmodule QuckChatRealtime.Providers.Email do
           """
           #{sender} mentioned you in #{channel}.
 
-          Open QuikApp to see the message.
+          Open QuckApp to see the message.
           """
         }
 
       _ ->
-        {"QuikApp Notification", "You have a new notification in QuikApp."}
+        {"QuckApp Notification", "You have a new notification in QuckApp."}
     end
   end
 

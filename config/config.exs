@@ -1,24 +1,24 @@
 # General application configuration
 import Config
 
-config :quckchat_realtime,
-  ecto_repos: [QuckChatRealtime.Repo],
+config :quckapp_realtime,
+  ecto_repos: [QuckAppRealtime.Repo],
   generators: [timestamp_type: :utc_datetime]
 
 # Endpoint configuration
-config :quckchat_realtime, QuckChatRealtimeWeb.Endpoint,
+config :quckapp_realtime, QuckAppRealtimeWeb.Endpoint,
   url: [host: "localhost"],
   adapter: Phoenix.Endpoint.Cowboy2Adapter,
   render_errors: [
-    formats: [json: QuckChatRealtimeWeb.ErrorJSON],
+    formats: [json: QuckAppRealtimeWeb.ErrorJSON],
     layout: false
   ],
-  pubsub_server: QuckChatRealtime.PubSub,
-  live_view: [signing_salt: "quckchat_realtime"]
+  pubsub_server: QuckAppRealtime.PubSub,
+  live_view: [signing_salt: "quckapp_realtime"]
 
 # Guardian JWT configuration
-config :quckchat_realtime, QuckChatRealtime.Guardian,
-  issuer: "quckchat_realtime",
+config :quckapp_realtime, QuckAppRealtime.Guardian,
+  issuer: "quckapp_realtime",
   secret_key: {:system, "JWT_SECRET"}
 
 # Logger configuration

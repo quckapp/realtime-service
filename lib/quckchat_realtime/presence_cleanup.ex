@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.PresenceCleanup do
+defmodule QuckAppRealtime.PresenceCleanup do
   @moduledoc """
   Periodic cleanup of stale presence records.
 
@@ -11,7 +11,7 @@ defmodule QuckChatRealtime.PresenceCleanup do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.{Redis, PresenceManager, Kafka}
+  alias QuckAppRealtime.{Redis, PresenceManager, Kafka}
 
   @cleanup_interval 30_000  # 30 seconds
   @stale_threshold 120  # 2 minutes without heartbeat

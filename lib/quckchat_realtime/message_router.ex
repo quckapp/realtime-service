@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.MessageRouter do
+defmodule QuckAppRealtime.MessageRouter do
   @moduledoc """
   WhatsApp-Style Message Router.
 
@@ -11,8 +11,8 @@ defmodule QuckChatRealtime.MessageRouter do
   """
   require Logger
 
-  alias QuckChatRealtime.{StoreAndForward, PresenceManager, NestJSClient}
-  alias QuckChatRealtime.Actors.UserSession
+  alias QuckAppRealtime.{StoreAndForward, PresenceManager, NestJSClient}
+  alias QuckAppRealtime.Actors.UserSession
 
   @doc """
   Route a message from sender to recipient(s).

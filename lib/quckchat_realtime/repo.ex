@@ -1,6 +1,6 @@
-defmodule QuckChatRealtime.Repo do
+defmodule QuckAppRealtime.Repo do
   @moduledoc """
-  MySQL Repository for QuckChat Realtime.
+  MySQL Repository for QuckApp Realtime.
 
   Used for:
   - Message queue persistence (store-and-forward)
@@ -9,6 +9,6 @@ defmodule QuckChatRealtime.Repo do
   - Analytics
   """
   use Ecto.Repo,
-    otp_app: :quckchat_realtime,
+    otp_app: :quckapp_realtime,
     adapter: Ecto.Adapters.MyXQL
 end

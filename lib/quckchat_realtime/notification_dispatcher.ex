@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.NotificationDispatcher do
+defmodule QuckAppRealtime.NotificationDispatcher do
   @moduledoc """
   Handles dispatching push notifications for real-time events.
 
@@ -17,7 +17,7 @@ defmodule QuckChatRealtime.NotificationDispatcher do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.{Mongo, Redis, Presence}
+  alias QuckAppRealtime.{Mongo, Redis, Presence}
 
   # Client API
 
@@ -240,7 +240,7 @@ defmodule QuckChatRealtime.NotificationDispatcher do
   defp send_fcm_notification(tokens, payload) do
     # In production, implement actual FCM sending
     # Using Firebase Admin SDK via HTTP API
-    config = Application.get_env(:quckchat_realtime, :firebase, [])
+    config = Application.get_env(:quckapp_realtime, :firebase, [])
     project_id = Keyword.get(config, :project_id)
 
     if project_id do

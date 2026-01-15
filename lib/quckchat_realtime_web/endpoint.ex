@@ -1,8 +1,8 @@
-defmodule QuckChatRealtimeWeb.Endpoint do
-  use Phoenix.Endpoint, otp_app: :quckchat_realtime
+defmodule QuckAppRealtimeWeb.Endpoint do
+  use Phoenix.Endpoint, otp_app: :quckapp_realtime
 
   # Socket for real-time communication
-  socket "/socket", QuckChatRealtimeWeb.UserSocket,
+  socket "/socket", QuckAppRealtimeWeb.UserSocket,
     websocket: [
       timeout: 45_000,
       compress: true,
@@ -11,13 +11,13 @@ defmodule QuckChatRealtimeWeb.Endpoint do
     longpoll: false
 
   # LiveDashboard in development
-  if Application.compile_env(:quckchat_realtime, :dev_routes) do
+  if Application.compile_env(:quckapp_realtime, :dev_routes) do
     import Phoenix.LiveDashboard.Router
 
     scope "/dev" do
       pipe_through [:fetch_session, :protect_from_forgery]
       live_dashboard "/dashboard",
-        metrics: QuckChatRealtimeWeb.Telemetry,
+        metrics: QuckAppRealtimeWeb.Telemetry,
         ecto_repos: []
     end
   end
@@ -38,5 +38,5 @@ defmodule QuckChatRealtimeWeb.Endpoint do
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     headers: ["Authorization", "Content-Type", "Accept"]
 
-  plug QuckChatRealtimeWeb.Router
+  plug QuckAppRealtimeWeb.Router
 end

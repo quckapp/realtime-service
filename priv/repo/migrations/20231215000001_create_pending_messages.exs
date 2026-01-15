@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.Repo.Migrations.CreatePendingMessages do
+defmodule QuckAppRealtime.Repo.Migrations.CreatePendingMessages do
   use Ecto.Migration
 
   def change do

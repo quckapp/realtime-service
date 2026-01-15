@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.TypingTracker do
+defmodule QuckAppRealtime.TypingTracker do
   @moduledoc """
   Enhanced Typing Indicator Tracker using MapSet.
 
@@ -12,7 +12,7 @@ defmodule QuckChatRealtime.TypingTracker do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.Redis
+  alias QuckAppRealtime.Redis
   alias Phoenix.PubSub
 
   @typing_timeout 5_000  # 5 seconds
@@ -241,7 +241,7 @@ defmodule QuckChatRealtime.TypingTracker do
 
   defp broadcast_typing(conversation_id, user_id, is_typing) do
     PubSub.broadcast(
-      QuckChatRealtime.PubSub,
+      QuckAppRealtime.PubSub,
       "conversation:#{conversation_id}",
       {:typing, user_id, is_typing}
     )

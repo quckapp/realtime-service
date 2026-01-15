@@ -1,4 +1,4 @@
-defmodule QuckChatRealtimeWeb.DeviceController do
+defmodule QuckAppRealtimeWeb.DeviceController do
   @moduledoc """
   Controller for managing user devices and push notification tokens.
 
@@ -8,10 +8,10 @@ defmodule QuckChatRealtimeWeb.DeviceController do
   - Device unregistration
   - Multi-device management
   """
-  use QuckChatRealtimeWeb, :controller
+  use QuckAppRealtimeWeb, :controller
   require Logger
 
-  alias QuckChatRealtime.Mongo
+  alias QuckAppRealtime.Mongo
 
   @max_devices_per_user 10
 

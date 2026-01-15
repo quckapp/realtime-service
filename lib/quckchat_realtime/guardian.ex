@@ -1,10 +1,10 @@
-defmodule QuckChatRealtime.Guardian do
+defmodule QuckAppRealtime.Guardian do
   @moduledoc """
   Guardian implementation for JWT authentication.
   Compatible with the NestJS backend's JWT tokens.
   """
 
-  use Guardian, otp_app: :quckchat_realtime
+  use Guardian, otp_app: :quckapp_realtime
 
   @doc """
   Extract user ID from JWT claims (sub claim).

@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.Presence do
+defmodule QuckAppRealtime.Presence do
   @moduledoc """
   User presence tracking using Phoenix Presence.
 
@@ -10,10 +10,10 @@ defmodule QuckChatRealtime.Presence do
   """
 
   use Phoenix.Presence,
-    otp_app: :quckchat_realtime,
-    pubsub_server: QuckChatRealtime.PubSub
+    otp_app: :quckapp_realtime,
+    pubsub_server: QuckAppRealtime.PubSub
 
-  alias QuckChatRealtime.Redis
+  alias QuckAppRealtime.Redis
 
   @doc """
   Track a user's presence when they connect.
@@ -78,7 +78,7 @@ defmodule QuckChatRealtime.Presence do
     # Broadcast joins
     for {user_id, %{metas: metas}} <- diff.joins do
       Phoenix.PubSub.broadcast(
-        QuckChatRealtime.PubSub,
+        QuckAppRealtime.PubSub,
         topic,
         {:presence_join, user_id, List.first(metas)}
       )
@@ -87,7 +87,7 @@ defmodule QuckChatRealtime.Presence do
     # Broadcast leaves
     for {user_id, %{metas: _metas}} <- diff.leaves do
       Phoenix.PubSub.broadcast(
-        QuckChatRealtime.PubSub,
+        QuckAppRealtime.PubSub,
         topic,
         {:presence_leave, user_id}
       )

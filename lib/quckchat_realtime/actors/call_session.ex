@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.Actors.CallSession do
+defmodule QuckAppRealtime.Actors.CallSession do
   @moduledoc """
   Call Session Actor - Manages individual call state and WebRTC signaling.
 
@@ -19,7 +19,7 @@ defmodule QuckChatRealtime.Actors.CallSession do
   use GenServer, restart: :transient
   require Logger
 
-  alias QuckChatRealtime.{Redis, SignalingServer, Kafka}
+  alias QuckAppRealtime.{Redis, SignalingServer, Kafka}
   alias Phoenix.PubSub
 
   @ringing_timeout 60_000      # 60 seconds to answer
@@ -51,7 +51,7 @@ defmodule QuckChatRealtime.Actors.CallSession do
   end
 
   def via_tuple(call_id) do
-    {:via, Registry, {QuckChatRealtime.CallRegistry, call_id}}
+    {:via, Registry, {QuckAppRealtime.CallRegistry, call_id}}
   end
 
   def get_state(call_id) do
@@ -417,7 +417,7 @@ defmodule QuckChatRealtime.Actors.CallSession do
   defp broadcast_call_event(state, event, data) do
     Enum.each(state.participants, fn p ->
       PubSub.broadcast(
-        QuckChatRealtime.PubSub,
+        QuckAppRealtime.PubSub,
         "user:#{p.user_id}",
         {:call_event, state.call_id, event, data}
       )
@@ -427,7 +427,7 @@ defmodule QuckChatRealtime.Actors.CallSession do
   defp broadcast_to_others(state, from_user_id, message) do
     Enum.each(state.participants, fn p ->
       if p.user_id != from_user_id do
-        PubSub.broadcast(QuckChatRealtime.PubSub, "user:#{p.user_id}", message)
+        PubSub.broadcast(QuckAppRealtime.PubSub, "user:#{p.user_id}", message)
       end
     end)
   end

@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.CallManager do
+defmodule QuckAppRealtime.CallManager do
   @moduledoc """
   GenServer for managing active voice/video calls.
 
@@ -13,7 +13,7 @@ defmodule QuckChatRealtime.CallManager do
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.{Redis, Mongo}
+  alias QuckAppRealtime.{Redis, Mongo}
 
   defstruct [
     :call_id,

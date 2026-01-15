@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.NestJSClient do
+defmodule QuckAppRealtime.NestJSClient do
   @moduledoc """
   HTTP Client for communicating with NestJS backend.
 
@@ -282,11 +282,11 @@ defmodule QuckChatRealtime.NestJSClient do
   end
 
   defp get_base_url do
-    Application.get_env(:quckchat_realtime, :nestjs_url, "http://localhost:3000")
+    Application.get_env(:quckapp_realtime, :nestjs_url, "http://localhost:3000")
   end
 
   defp get_headers do
-    api_key = Application.get_env(:quckchat_realtime, :nestjs_api_key)
+    api_key = Application.get_env(:quckapp_realtime, :nestjs_api_key)
 
     base_headers = [
       {"Content-Type", "application/json"},

@@ -1,9 +1,9 @@
-defmodule QuckChatRealtime.MixProject do
+defmodule QuckAppRealtime.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :quckchat_realtime,
+      app: :quckapp_realtime,
       version: "1.0.0",
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
@@ -16,7 +16,7 @@ defmodule QuckChatRealtime.MixProject do
 
   def application do
     [
-      mod: {QuckChatRealtime.Application, []},
+      mod: {QuckAppRealtime.Application, []},
       extra_applications: [:logger, :runtime_tools, :os_mon]
     ]
   end
@@ -80,7 +80,7 @@ defmodule QuckChatRealtime.MixProject do
 
   defp releases do
     [
-      quckchat_realtime: [
+      quckapp_realtime: [
         include_executables_for: [:unix],
         applications: [runtime_tools: :permanent]
       ]

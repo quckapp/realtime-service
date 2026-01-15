@@ -1,29 +1,29 @@
-defmodule QuckChatRealtime.Kafka.Consumer do
+defmodule QuckAppRealtime.Kafka.Consumer do
   @moduledoc """
   Kafka Consumer for receiving events from NestJS backend.
 
   Subscribes to topics:
-  - quckchat.backend.messages     - Message events from NestJS
-  - quckchat.backend.users        - User events (profile updates, etc.)
-  - quckchat.backend.conversations - Conversation events
-  - quckchat.backend.notifications - Push notification requests
+  - quckapp.backend.messages     - Message events from NestJS
+  - quckapp.backend.users        - User events (profile updates, etc.)
+  - quckapp.backend.conversations - Conversation events
+  - quckapp.backend.notifications - Push notification requests
   """
 
   use GenServer
   require Logger
 
-  alias QuckChatRealtime.{MessageRouter, PresenceManager}
-  alias QuckChatRealtime.Actors.UserSession
+  alias QuckAppRealtime.{MessageRouter, PresenceManager}
+  alias QuckAppRealtime.Actors.UserSession
 
-  @client_id :quckchat_kafka_consumer
-  @group_id "quckchat-realtime-group"
+  @client_id :quckapp_kafka_consumer
+  @group_id "quckapp-realtime-group"
 
   # Topics to subscribe
   @subscribed_topics [
-    "quckchat.backend.messages",
-    "quckchat.backend.users",
-    "quckchat.backend.conversations",
-    "quckchat.backend.notifications"
+    "quckapp.backend.messages",
+    "quckapp.backend.users",
+    "quckapp.backend.conversations",
+    "quckapp.backend.notifications"
   ]
 
   # ============================================
@@ -40,7 +40,7 @@ defmodule QuckChatRealtime.Kafka.Consumer do
 
   @impl true
   def init(_opts) do
-    config = Application.get_env(:quckchat_realtime, :kafka, [])
+    config = Application.get_env(:quckapp_realtime, :kafka, [])
     brokers = Keyword.get(config, :brokers, [{"localhost", 9092}])
     enabled = Keyword.get(config, :enabled, false)
 
@@ -85,7 +85,7 @@ defmodule QuckChatRealtime.Kafka.Consumer do
   # Event Handlers
   # ============================================
 
-  defp handle_event("quckchat.backend.messages", _key, event) do
+  defp handle_event("quckapp.backend.messages", _key, event) do
     case event["event_type"] do
       "message.created" ->
         handle_message_created(event["data"])
@@ -101,7 +101,7 @@ defmodule QuckChatRealtime.Kafka.Consumer do
     end
   end
 
-  defp handle_event("quckchat.backend.users", _key, event) do
+  defp handle_event("quckapp.backend.users", _key, event) do
     case event["event_type"] do
       "user.updated" ->
         handle_user_updated(event["data"])
@@ -114,7 +114,7 @@ defmodule QuckChatRealtime.Kafka.Consumer do
     end
   end
 
-  defp handle_event("quckchat.backend.conversations", _key, event) do
+  defp handle_event("quckapp.backend.conversations", _key, event) do
     case event["event_type"] do
       "conversation.created" ->
         handle_conversation_created(event["data"])
@@ -133,7 +133,7 @@ defmodule QuckChatRealtime.Kafka.Consumer do
     end
   end
 
-  defp handle_event("quckchat.backend.notifications", _key, event) do
+  defp handle_event("quckapp.backend.notifications", _key, event) do
     case event["event_type"] do
       "notification.push" ->
         handle_push_notification(event["data"])
@@ -354,7 +354,7 @@ defmodule QuckChatRealtime.Kafka.Consumer do
 
   defp broadcast_to_conversation(conversation_id, message) do
     Phoenix.PubSub.broadcast(
-      QuckChatRealtime.PubSub,
+      QuckAppRealtime.PubSub,
       "conversation:#{conversation_id}",
       {:kafka_event, message}
     )

@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.Providers.APNs do
+defmodule QuckAppRealtime.Providers.APNs do
   @moduledoc """
   Apple Push Notification Service (APNs) Provider.
 
@@ -54,7 +54,7 @@ defmodule QuckChatRealtime.Providers.APNs do
 
   @impl true
   def init(_opts) do
-    config = Application.get_env(:quckchat_realtime, :apns, [])
+    config = Application.get_env(:quckapp_realtime, :apns, [])
 
     state = %__MODULE__{
       team_id: Keyword.get(config, :team_id),

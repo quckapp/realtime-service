@@ -1,4 +1,4 @@
-defmodule QuckChatRealtime.Redis do
+defmodule QuckAppRealtime.Redis do
   @moduledoc """
   Redis connection manager for distributed state.
 
@@ -19,7 +19,7 @@ defmodule QuckChatRealtime.Redis do
 
   @impl true
   def init(_opts) do
-    redis_config = Application.get_env(:quckchat_realtime, :redis, [])
+    redis_config = Application.get_env(:quckapp_realtime, :redis, [])
 
     children =
       for i <- 0..(@pool_size - 1) do

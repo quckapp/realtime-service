@@ -1,6 +1,6 @@
-defmodule QuckChatRealtime.Mongo do
+defmodule QuckAppRealtime.Mongo do
   @moduledoc """
-  MongoDB Atlas Connection for QuckChat data.
+  MongoDB Atlas Connection for QuckApp data.
 
   Hybrid Architecture:
   - MongoDB Atlas: Main data (users, conversations, messages, calls)
@@ -28,8 +28,8 @@ defmodule QuckChatRealtime.Mongo do
   end
 
   defp connect_to_mongodb do
-    config = Application.get_env(:quckchat_realtime, __MODULE__, [])
-    url = Keyword.get(config, :url, "mongodb://localhost:27017/quckchat")
+    config = Application.get_env(:quckapp_realtime, __MODULE__, [])
+    url = Keyword.get(config, :url, "mongodb://localhost:27017/quckapp")
     pool_size = Keyword.get(config, :pool_size, 10)
     ssl = Keyword.get(config, :ssl, false)
 

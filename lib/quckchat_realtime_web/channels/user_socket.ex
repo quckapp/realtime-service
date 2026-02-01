@@ -25,12 +25,14 @@ defmodule QuckAppRealtimeWeb.UserSocket do
     token = get_token(params, connect_info)
 
     case Guardian.verify_token(token) do
-      {:ok, user_id} ->
-        Logger.info("Socket connected for user: #{user_id}")
+      {:ok, %{user_id: user_id, external_id: external_id}} ->
+        Logger.info("Socket connected for user: #{user_id}, external_id: #{external_id || "none"}")
 
         socket =
           socket
           |> assign(:user_id, user_id)
+          # external_id is the MongoDB ObjectId used for conversation lookup
+          |> assign(:external_id, external_id)
           |> assign(:connected_at, System.system_time(:second))
           |> assign(:user_agent, get_user_agent(connect_info))
           |> assign(:ip_address, get_ip_address(connect_info))

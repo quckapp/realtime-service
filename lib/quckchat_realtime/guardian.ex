@@ -1,7 +1,11 @@
 defmodule QuckAppRealtime.Guardian do
   @moduledoc """
   Guardian implementation for JWT authentication.
-  Compatible with the NestJS backend's JWT tokens.
+  Compatible with the Spring Boot auth-service JWT tokens.
+
+  The JWT contains:
+  - sub: Spring auth-service user UUID
+  - externalId: MongoDB ObjectId (used by NestJS for conversations)
   """
 
   use Guardian, otp_app: :quckapp_realtime
@@ -29,13 +33,26 @@ defmodule QuckAppRealtime.Guardian do
   def resource_from_claims(_claims), do: {:error, :invalid_claims}
 
   @doc """
-  Verify a token and extract user_id.
+  Verify a token and extract user_id along with externalId (MongoDB ObjectId).
   Used for WebSocket authentication.
+
+  Returns {:ok, %{user_id: string, external_id: string | nil}} on success.
   """
   def verify_token(token) when is_binary(token) do
     case decode_and_verify(token) do
-      {:ok, claims} -> resource_from_claims(claims)
-      {:error, reason} -> {:error, reason}
+      {:ok, claims} ->
+        case claims do
+          %{"sub" => user_id} when is_binary(user_id) ->
+            # externalId is the MongoDB ObjectId used by NestJS
+            external_id = claims["externalId"]
+            {:ok, %{user_id: user_id, external_id: external_id}}
+
+          _ ->
+            {:error, :invalid_claims}
+        end
+
+      {:error, reason} ->
+        {:error, reason}
     end
   end
 

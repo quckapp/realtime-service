@@ -29,7 +29,7 @@ if config_env() == :prod do
   # ========================================
   mongodb_url = System.get_env("MONGODB_URL") || "mongodb://localhost:27017/quckapp"
 
-  config :quckapp_realtime, :mongodb,
+  config :quckapp_realtime, QuckAppRealtime.Mongo,
     url: mongodb_url,
     pool_size: String.to_integer(System.get_env("MONGODB_POOL_SIZE") || "10"),
     ssl: System.get_env("MONGODB_SSL", "false") == "true"

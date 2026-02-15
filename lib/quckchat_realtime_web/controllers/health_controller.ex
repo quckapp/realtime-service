@@ -1,7 +1,18 @@
 defmodule QuckAppRealtimeWeb.HealthController do
   use QuckAppRealtimeWeb, :controller
+  use OpenApiSpex.ControllerSpecs
 
   alias QuckAppRealtime.{CallManager, HuddleManager, Redis}
+  alias QuckAppRealtimeWeb.Schemas.Common
+
+  tags ["Health"]
+
+  operation :index,
+    summary: "Health check",
+    description: "Returns the basic health status of the service",
+    responses: [
+      ok: {"Health check response", "application/json", Common.HealthResponse}
+    ]
 
   def index(conn, _params) do
     json(conn, %{
@@ -11,6 +22,14 @@ defmodule QuckAppRealtimeWeb.HealthController do
       timestamp: DateTime.utc_now()
     })
   end
+
+  operation :ready,
+    summary: "Readiness check",
+    description: "Checks if the service is ready to accept traffic (all dependencies are available)",
+    responses: [
+      ok: {"Service is ready", "application/json", Common.ReadyResponse},
+      service_unavailable: {"Service not ready", "application/json", Common.ReadyResponse}
+    ]
 
   def ready(conn, _params) do
     checks = %{
@@ -29,6 +48,13 @@ defmodule QuckAppRealtimeWeb.HealthController do
       checks: Map.new(checks, fn {k, v} -> {k, v == :ok} end)
     })
   end
+
+  operation :live,
+    summary: "Liveness check",
+    description: "Returns liveness status with runtime statistics (connected users, active calls, memory usage)",
+    responses: [
+      ok: {"Liveness response with stats", "application/json", Common.LiveResponse}
+    ]
 
   def live(conn, _params) do
     stats = %{

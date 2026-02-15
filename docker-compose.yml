@@ -4,28 +4,98 @@ services:
   # ============================================
   # Elixir Realtime Service
   # ============================================
-  realtime:
+  realtime-service:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: quckapp-realtime-service
     ports:
-      - "4000:4000"
+      - "4003:4003"
+      - "4369:4369"
     environment:
-      - PORT=4000
-      - HOST=localhost
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-at-least-64-chars-long-change-in-production}
+      # Application Configuration
+      - PORT=4003
+      - HOST=0.0.0.0
+      - MIX_ENV=prod
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-at-least-64-chars-long-change-in-production-env}
+      # JWT Configuration
       - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-production}
+      # Database Configuration
+      - DATABASE_URL=mysql://root:root_secret@mysql:3306/quckapp_realtime
+      - DATABASE_POOL_SIZE=20
+      - DATABASE_SSL=false
+      # MongoDB Configuration
       - MONGODB_URL=mongodb://mongodb:27017/quckapp
-      - DATABASE_URL=mysql://root:password@mysql:3306/quckapp_realtime
-      - REDIS_URL=redis://redis:6379
-      - NODE_NAME=realtime@realtime
-      - NESTJS_URL=http://backend:3000
-      - STUN_SERVER_URL=stun:stun.l.google.com:19302
+      - MONGODB_POOL_SIZE=10
+      # Redis Configuration
+      - REDIS_URL=redis://:redis_secret@redis:6379
+      - REDIS_SSL=false
       # Kafka Configuration
+      - KAFKA_BROKERS=kafka:9092
       - KAFKA_ENABLED=true
-      - KAFKA_HOST=kafka
-      - KAFKA_PORT=9092
+      - KAFKA_CONSUMER_GROUP=realtime-service-group
+      # Service URLs
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - NESTJS_URL=http://backend-gateway:3000
+      # Erlang Clustering
+      - NODE_NAME=realtime@realtime-service
+      - CLUSTER_NODES=
+      - RELEASE_COOKIE=${ERLANG_COOKIE:-quckapp_realtime_secret_cookie}
+      # WebRTC Configuration
+      - STUN_SERVER_URL=stun:stun.l.google.com:19302
+      - TURN_SERVER_URL=${TURN_SERVER_URL:-}
+      - TURN_USERNAME=${TURN_USERNAME:-}
+      - TURN_CREDENTIAL=${TURN_CREDENTIAL:-}
     depends_on:
+      mongodb:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      kafka:
+        condition: service_healthy
+    networks:
+      - quckapp-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:4003/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # Scale multiple realtime nodes (optional profile)
+  realtime-service-node-2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: quckapp-realtime-service-node-2
+    ports:
+      - "4004:4003"
+      - "4370:4369"
+    environment:
+      - PORT=4003
+      - HOST=0.0.0.0
+      - MIX_ENV=prod
+      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-at-least-64-chars-long-change-in-production-env}
+      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-production}
+      - DATABASE_URL=mysql://root:root_secret@mysql:3306/quckapp_realtime
+      - DATABASE_POOL_SIZE=20
+      - DATABASE_SSL=false
+      - MONGODB_URL=mongodb://mongodb:27017/quckapp
+      - REDIS_URL=redis://:redis_secret@redis:6379
+      - KAFKA_BROKERS=kafka:9092
+      - KAFKA_ENABLED=true
+      - KAFKA_CONSUMER_GROUP=realtime-service-group
+      - AUTH_SERVICE_URL=http://auth-service:8081
+      - NESTJS_URL=http://backend-gateway:3000
+      - NODE_NAME=realtime@realtime-service-node-2
+      - CLUSTER_NODES=realtime@realtime-service
+      - RELEASE_COOKIE=${ERLANG_COOKIE:-quckapp_realtime_secret_cookie}
+      - STUN_SERVER_URL=stun:stun.l.google.com:19302
+    depends_on:
+      - realtime-service
       - mongodb
       - mysql
       - redis
@@ -33,50 +103,21 @@ services:
     networks:
       - quckapp-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:4000/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:4003/health"]
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 10s
-
-  # Scale multiple realtime nodes
-  realtime-node-2:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "4001:4000"
-    environment:
-      - PORT=4000
-      - HOST=localhost
-      - SECRET_KEY_BASE=${SECRET_KEY_BASE:-your-secret-key-base-at-least-64-chars-long-change-in-production}
-      - JWT_SECRET=${JWT_SECRET:-your-jwt-secret-change-in-production}
-      - MONGODB_URL=mongodb://mongodb:27017/quckapp
-      - DATABASE_URL=mysql://root:password@mysql:3306/quckapp_realtime
-      - REDIS_URL=redis://redis:6379
-      - NODE_NAME=realtime@realtime-node-2
-      - NESTJS_URL=http://backend:3000
-      - STUN_SERVER_URL=stun:stun.l.google.com:19302
-      - KAFKA_ENABLED=true
-      - KAFKA_HOST=kafka
-      - KAFKA_PORT=9092
-    depends_on:
-      - mongodb
-      - mysql
-      - redis
-      - kafka
-    networks:
-      - quckapp-network
+      start_period: 30s
     profiles:
       - scaled
+    restart: unless-stopped
 
   # ============================================
-  # Databases
+  # MongoDB (Document Store)
   # ============================================
-
-  # MongoDB (for main data - connects to Atlas in production)
   mongodb:
     image: mongo:7
+    container_name: quckapp-realtime-mongodb
     ports:
       - "27017:27017"
     volumes:
@@ -89,47 +130,57 @@ services:
       timeout: 10s
       retries: 5
       start_period: 10s
+    restart: unless-stopped
 
-  # MySQL (for real-time queue / store-and-forward)
+  # ============================================
+  # MySQL (Store-and-Forward Queue)
+  # ============================================
   mysql:
-    image: mysql:8
+    image: mysql:8.0
+    container_name: quckapp-realtime-mysql
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_ROOT_PASSWORD=root_secret
       - MYSQL_DATABASE=quckapp_realtime
     volumes:
       - mysql_data:/var/lib/mysql
     networks:
       - quckapp-network
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot_secret"]
       interval: 10s
       timeout: 5s
       retries: 5
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    restart: unless-stopped
 
   # ============================================
-  # Redis
+  # Redis (Distributed State & PubSub)
   # ============================================
   redis:
     image: redis:7-alpine
+    container_name: quckapp-realtime-redis
     ports:
       - "6379:6379"
+    command: redis-server --appendonly yes --requirepass redis_secret
     volumes:
       - redis_data:/data
     networks:
       - quckapp-network
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "redis_secret", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   # ============================================
   # Kafka (Event Streaming)
   # ============================================
   zookeeper:
     image: confluentinc/cp-zookeeper:7.5.0
+    container_name: quckapp-realtime-zookeeper
     ports:
       - "2181:2181"
     environment:
@@ -145,9 +196,11 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   kafka:
     image: confluentinc/cp-kafka:7.5.0
+    container_name: quckapp-realtime-kafka
     ports:
       - "9092:9092"
       - "29092:29092"
@@ -164,7 +217,8 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
     depends_on:
-      - zookeeper
+      zookeeper:
+        condition: service_healthy
     networks:
       - quckapp-network
     healthcheck:
@@ -172,14 +226,18 @@ services:
       interval: 30s
       timeout: 10s
       retries: 5
+    restart: unless-stopped
 
-  # Kafka UI (optional - for debugging)
+  # ============================================
+  # Kafka UI (Optional - Debug Profile)
+  # ============================================
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
+    container_name: quckapp-realtime-kafka-ui
     ports:
       - "8080:8080"
     environment:
-      KAFKA_CLUSTERS_0_NAME: quckapp
+      KAFKA_CLUSTERS_0_NAME: quckapp-realtime
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
       KAFKA_CLUSTERS_0_ZOOKEEPER: zookeeper:2181
     depends_on:
@@ -188,23 +246,26 @@ services:
       - quckapp-network
     profiles:
       - debug
+    restart: unless-stopped
 
   # ============================================
-  # Load Balancer (Production)
+  # Load Balancer (Production Profile)
   # ============================================
   nginx:
     image: nginx:alpine
+    container_name: quckapp-realtime-nginx
     ports:
       - "80:80"
       - "443:443"
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf:ro
     depends_on:
-      - realtime
+      - realtime-service
     networks:
       - quckapp-network
     profiles:
       - production
+    restart: unless-stopped
 
 volumes:
   mongodb_data:

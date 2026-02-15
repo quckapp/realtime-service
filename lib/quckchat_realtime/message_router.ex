@@ -11,7 +11,7 @@ defmodule QuckAppRealtime.MessageRouter do
   """
   require Logger
 
-  alias QuckAppRealtime.{StoreAndForward, PresenceManager, NestJSClient}
+  alias QuckAppRealtime.{StoreAndForward, PresenceManager, NestJSClient, ParallelRouter}
   alias QuckAppRealtime.Actors.UserSession
 
   @doc """
@@ -130,28 +130,43 @@ defmodule QuckAppRealtime.MessageRouter do
     recipient_ids = message[:recipient_ids] || []
     sender_id = message.sender_id
 
-    results = Enum.map(recipient_ids, fn recipient_id ->
-      # Don't send back to sender
-      if recipient_id != sender_id do
-        route_to_single_recipient(message, recipient_id)
-      else
-        {:ok, :skipped}
-      end
-    end)
+    # Filter out sender
+    recipients = Enum.reject(recipient_ids, &(&1 == sender_id))
 
-    # Check if any messages were queued
-    queued = Enum.any?(results, fn
-      {:queued, _} -> true
-      _ -> false
-    end)
+    # Use parallel routing for large recipient lists (100+)
+    case length(recipients) do
+      0 ->
+        :ok
 
-    if queued do
-      {:queued, Enum.find_value(results, fn
-        {:queued, id} -> id
-        _ -> nil
-      end)}
-    else
-      :ok
+      count when count >= 100 ->
+        # Use Flow-based parallel routing for large groups
+        case ParallelRouter.deliver_to_many(message, recipients) do
+          {:ok, %{queued: queued}} when queued > 0 ->
+            {:queued, "#{queued} recipients"}
+          _ ->
+            :ok
+        end
+
+      _ ->
+        # Sequential routing for smaller groups
+        results = Enum.map(recipients, fn recipient_id ->
+          route_to_single_recipient(message, recipient_id)
+        end)
+
+        # Check if any messages were queued
+        queued = Enum.any?(results, fn
+          {:queued, _} -> true
+          _ -> false
+        end)
+
+        if queued do
+          {:queued, Enum.find_value(results, fn
+            {:queued, id} -> id
+            _ -> nil
+          end)}
+        else
+          :ok
+        end
     end
   end
 

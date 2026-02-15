@@ -9,10 +9,28 @@ defmodule QuckAppRealtimeWeb.RecordingController do
   - Recording access permissions
   """
   use QuckAppRealtimeWeb, :controller
+  use OpenApiSpex.ControllerSpecs
   require Logger
 
   alias QuckAppRealtime.{Mongo, Redis}
   alias QuckAppRealtime.Actors.CallSession
+  alias QuckAppRealtimeWeb.Schemas.{Common, Recording}
+
+  tags ["Recordings"]
+
+  operation :start,
+    summary: "Start recording",
+    description: "Start recording a call",
+    parameters: [
+      call_id: [in: :path, type: :string, description: "Call ID", required: true]
+    ],
+    responses: [
+      ok: {"Recording started", "application/json", Recording.StartResponse},
+      not_found: {"Call not found", "application/json", Common.ErrorResponse},
+      conflict: {"Call not active", "application/json", Common.ErrorResponse},
+      internal_server_error: {"Server error", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "Start recording a call"
   def start(conn, %{"call_id" => call_id}) do
@@ -50,6 +68,18 @@ defmodule QuckAppRealtimeWeb.RecordingController do
     end
   end
 
+  operation :stop,
+    summary: "Stop recording",
+    description: "Stop recording a call",
+    parameters: [
+      call_id: [in: :path, type: :string, description: "Call ID", required: true]
+    ],
+    responses: [
+      ok: {"Recording stopped", "application/json", Recording.StopResponse},
+      internal_server_error: {"Server error", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
+
   @doc "Stop recording a call"
   def stop(conn, %{"call_id" => call_id}) do
     user_id = conn.assigns.user_id
@@ -76,6 +106,17 @@ defmodule QuckAppRealtimeWeb.RecordingController do
     end
   end
 
+  operation :status,
+    summary: "Get recording status",
+    description: "Get the current recording status for a call",
+    parameters: [
+      call_id: [in: :path, type: :string, description: "Call ID", required: true]
+    ],
+    responses: [
+      ok: {"Recording status", "application/json", Recording.StatusResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
+
   @doc "Get recording status for a call"
   def status(conn, %{"call_id" => call_id}) do
     case get_active_recording(call_id) do
@@ -96,6 +137,20 @@ defmodule QuckAppRealtimeWeb.RecordingController do
         |> json(%{success: true, recording: false})
     end
   end
+
+  operation :list,
+    summary: "List recordings",
+    description: "List recordings for a conversation",
+    parameters: [
+      conversation_id: [in: :query, type: :string, description: "Conversation ID", required: true],
+      limit: [in: :query, type: :integer, description: "Number of recordings to return", required: false],
+      offset: [in: :query, type: :integer, description: "Number of recordings to skip", required: false]
+    ],
+    responses: [
+      ok: {"Recording list", "application/json", Recording.ListResponse},
+      forbidden: {"Not authorized", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "List recordings for a conversation"
   def list(conn, %{"conversation_id" => conversation_id} = params) do
@@ -123,6 +178,19 @@ defmodule QuckAppRealtimeWeb.RecordingController do
     end
   end
 
+  operation :show,
+    summary: "Get recording",
+    description: "Get details of a specific recording",
+    parameters: [
+      recording_id: [in: :path, type: :string, description: "Recording ID", required: true]
+    ],
+    responses: [
+      ok: {"Recording details", "application/json", Recording.ShowResponse},
+      not_found: {"Recording not found", "application/json", Common.ErrorResponse},
+      forbidden: {"Not authorized", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
+
   @doc "Get recording details"
   def show(conn, %{"recording_id" => recording_id}) do
     user_id = conn.assigns.user_id
@@ -146,6 +214,19 @@ defmodule QuckAppRealtimeWeb.RecordingController do
         |> json(%{success: false, error: "recording_not_found"})
     end
   end
+
+  operation :delete,
+    summary: "Delete recording",
+    description: "Delete a recording (only the user who started it can delete)",
+    parameters: [
+      recording_id: [in: :path, type: :string, description: "Recording ID", required: true]
+    ],
+    responses: [
+      ok: {"Recording deleted", "application/json", Common.SuccessResponse},
+      not_found: {"Recording not found", "application/json", Common.ErrorResponse},
+      forbidden: {"Not authorized", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "Delete a recording"
   def delete(conn, %{"recording_id" => recording_id}) do
@@ -172,6 +253,19 @@ defmodule QuckAppRealtimeWeb.RecordingController do
         |> json(%{success: false, error: "recording_not_found"})
     end
   end
+
+  operation :download_url,
+    summary: "Get download URL",
+    description: "Get a signed download URL for a recording",
+    parameters: [
+      recording_id: [in: :path, type: :string, description: "Recording ID", required: true]
+    ],
+    responses: [
+      ok: {"Download URL", "application/json", Recording.DownloadResponse},
+      not_found: {"Recording not found", "application/json", Common.ErrorResponse},
+      forbidden: {"Not authorized", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "Get signed URL for recording download"
   def download_url(conn, %{"recording_id" => recording_id}) do

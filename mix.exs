@@ -1,13 +1,15 @@
 defmodule QuckAppRealtime.MixProject do
   use Mix.Project
 
+  @production_envs [:prod, :production, :staging, :live, :qa, :uat1, :uat2, :uat3]
+
   def project do
     [
       app: :quckapp_realtime,
       version: "1.0.0",
       elixir: "~> 1.15",
       elixirc_paths: elixirc_paths(Mix.env()),
-      start_permanent: Mix.env() == :prod,
+      start_permanent: Mix.env() in @production_envs,
       aliases: aliases(),
       deps: deps(),
       releases: releases()
@@ -33,6 +35,7 @@ defmodule QuckAppRealtime.MixProject do
       {:plug_cowboy, "~> 2.6"},
       {:jason, "~> 1.4"},
       {:cors_plug, "~> 3.0"},
+      {:gettext, "~> 0.24"},
 
       # Authentication
       {:guardian, "~> 2.3"},
@@ -62,10 +65,29 @@ defmodule QuckAppRealtime.MixProject do
       {:prometheus_ex, "~> 3.0"},
       {:prometheus_plugs, "~> 1.1"},
 
+      # API Documentation
+      {:open_api_spex, "~> 3.18"},
+
+      # Background Jobs
+      {:oban, "~> 2.17"},
+
+      # Better Logging
+      {:logster, "~> 1.1"},
+
+      # Clustering
+      {:libcluster, "~> 3.3"},
+
       # Development
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
-      {:ex_doc, "~> 0.31", only: :dev, runtime: false}
+      {:sobelow, "~> 0.13", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.31", only: :dev, runtime: false},
+
+      # Algorithm libraries
+      {:fuse, "~> 2.5"},
+      {:flow, "~> 1.2"},
+      {:ex_hash_ring, "~> 7.0"},
+      {:machinery, "~> 1.1"}
     ]
   end
 
@@ -80,9 +102,10 @@ defmodule QuckAppRealtime.MixProject do
 
   defp releases do
     [
-      quckapp_realtime: [
+      quckchat_realtime: [
         include_executables_for: [:unix],
-        applications: [runtime_tools: :permanent]
+        applications: [runtime_tools: :permanent],
+        cookie: System.get_env("RELEASE_COOKIE") || "quckapp_realtime_secret_cookie"
       ]
     ]
   end

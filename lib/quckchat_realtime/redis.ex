@@ -40,7 +40,9 @@ defmodule QuckAppRealtime.Redis do
         host = Keyword.get(config, :host, "localhost")
         port = Keyword.get(config, :port, 6379)
         database = Keyword.get(config, :database, 0)
-        base_opts ++ [host: host, port: port, database: database]
+        password = Keyword.get(config, :password)
+        opts = base_opts ++ [host: host, port: port, database: database]
+        if password, do: opts ++ [password: password], else: opts
 
       url ->
         base_opts ++ [url: url]

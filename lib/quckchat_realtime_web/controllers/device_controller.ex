@@ -9,11 +9,26 @@ defmodule QuckAppRealtimeWeb.DeviceController do
   - Multi-device management
   """
   use QuckAppRealtimeWeb, :controller
+  use OpenApiSpex.ControllerSpecs
   require Logger
 
   alias QuckAppRealtime.Mongo
+  alias QuckAppRealtimeWeb.Schemas.{Common, Device}
 
   @max_devices_per_user 10
+
+  tags ["Devices"]
+
+  operation :register,
+    summary: "Register device",
+    description: "Register a new device for push notifications",
+    request_body: {"Device registration", "application/json", Device.RegisterRequest},
+    responses: [
+      created: {"Device registered", "application/json", Device.RegisterResponse},
+      conflict: {"Maximum devices reached", "application/json", Common.ErrorResponse},
+      internal_server_error: {"Server error", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "Register a new device"
   def register(conn, params) do
@@ -63,6 +78,20 @@ defmodule QuckAppRealtimeWeb.DeviceController do
     end
   end
 
+  operation :update_token,
+    summary: "Update device token",
+    description: "Update the push notification token for an existing device",
+    parameters: [
+      device_id: [in: :path, type: :string, description: "Device ID", required: true]
+    ],
+    request_body: {"Token update", "application/json", Device.UpdateTokenRequest},
+    responses: [
+      ok: {"Token updated", "application/json", Common.SuccessResponse},
+      not_found: {"Device not found", "application/json", Common.ErrorResponse},
+      internal_server_error: {"Server error", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
+
   @doc "Update device push token"
   def update_token(conn, %{"device_id" => device_id, "push_token" => push_token} = params) do
     user_id = conn.assigns.user_id
@@ -93,6 +122,19 @@ defmodule QuckAppRealtimeWeb.DeviceController do
     end
   end
 
+  operation :unregister,
+    summary: "Unregister device",
+    description: "Remove a device registration (unsubscribe from push notifications)",
+    parameters: [
+      device_id: [in: :path, type: :string, description: "Device ID", required: true]
+    ],
+    responses: [
+      ok: {"Device unregistered", "application/json", Common.SuccessResponse},
+      not_found: {"Device not found", "application/json", Common.ErrorResponse},
+      internal_server_error: {"Server error", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
+
   @doc "Unregister a device"
   def unregister(conn, %{"device_id" => device_id}) do
     user_id = conn.assigns.user_id
@@ -116,6 +158,15 @@ defmodule QuckAppRealtimeWeb.DeviceController do
         |> json(%{success: false, error: reason})
     end
   end
+
+  operation :list,
+    summary: "List devices",
+    description: "List all registered devices for the authenticated user",
+    responses: [
+      ok: {"Device list", "application/json", Device.ListResponse},
+      internal_server_error: {"Server error", "application/json", Common.ErrorResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "List user's registered devices"
   def list(conn, _params) do
@@ -144,6 +195,17 @@ defmodule QuckAppRealtimeWeb.DeviceController do
         |> json(%{success: false, error: reason})
     end
   end
+
+  operation :heartbeat,
+    summary: "Device heartbeat",
+    description: "Record device activity (keep-alive signal)",
+    parameters: [
+      device_id: [in: :path, type: :string, description: "Device ID", required: true]
+    ],
+    responses: [
+      ok: {"Heartbeat recorded", "application/json", Device.HeartbeatResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "Record device activity"
   def heartbeat(conn, %{"device_id" => device_id}) do

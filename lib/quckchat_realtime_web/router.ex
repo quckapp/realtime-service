@@ -27,8 +27,9 @@ defmodule QuckAppRealtimeWeb.Router do
     get "/", MetricsController, :index
   end
 
-  # API endpoints for managing state
-  scope "/api", QuckAppRealtimeWeb do
+  # API endpoints for managing state — namespaced under /api/realtime
+  # to avoid conflicts with dedicated services (call-service, presence-service, etc.)
+  scope "/api/realtime", QuckAppRealtimeWeb do
     pipe_through :api
 
     # Call management
@@ -59,7 +60,7 @@ defmodule QuckAppRealtimeWeb.Router do
     get "/presence/online", PresenceController, :online_users
     get "/presence/typing/:conversation_id", PresenceController, :typing_users
 
-    # Device management (push notification tokens)
+    # Device management (WebRTC connection devices)
     post "/devices", DeviceController, :register
     get "/devices", DeviceController, :list
     put "/devices/:device_id/token", DeviceController, :update_token

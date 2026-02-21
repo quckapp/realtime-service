@@ -43,10 +43,14 @@ if config_env() == :prod do
   # ========================================
   # Redis Configuration
   # ========================================
-  redis_url = System.get_env("REDIS_URL") || "redis://localhost:6379"
+  redis_host = System.get_env("REDIS_HOST") || "localhost"
+  redis_port = String.to_integer(System.get_env("REDIS_PORT") || "6379")
+  redis_password = System.get_env("REDIS_PASSWORD")
 
   config :quckapp_realtime, :redis,
-    url: redis_url,
+    host: redis_host,
+    port: redis_port,
+    password: redis_password,
     ssl: System.get_env("REDIS_SSL", "false") == "true"
 
   # ========================================

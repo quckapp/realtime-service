@@ -35,15 +35,17 @@ defmodule QuckAppRealtime.Redis do
   defp redis_opts(config, index) do
     base_opts = [name: :"redix_#{index}"]
 
-    case Keyword.get(config, :url) do
-      nil ->
-        host = Keyword.get(config, :host, "localhost")
-        port = Keyword.get(config, :port, 6379)
-        database = Keyword.get(config, :database, 0)
-        base_opts ++ [host: host, port: port, database: database]
+    host = Keyword.get(config, :host, "localhost")
+    port = Keyword.get(config, :port, 6379)
+    password = Keyword.get(config, :password)
+    database = Keyword.get(config, :database, 0)
 
-      url ->
-        base_opts ++ [url: url]
+    opts = base_opts ++ [host: host, port: port, database: database]
+
+    if password do
+      opts ++ [password: password]
+    else
+      opts
     end
   end
 

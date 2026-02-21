@@ -10,18 +10,6 @@ defmodule QuckAppRealtimeWeb.Endpoint do
     ],
     longpoll: false
 
-  # LiveDashboard in development
-  if Application.compile_env(:quckapp_realtime, :dev_routes) do
-    import Phoenix.LiveDashboard.Router
-
-    scope "/dev" do
-      pipe_through [:fetch_session, :protect_from_forgery]
-      live_dashboard "/dashboard",
-        metrics: QuckAppRealtimeWeb.Telemetry,
-        ecto_repos: []
-    end
-  end
-
   plug Plug.RequestId
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 

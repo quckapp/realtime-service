@@ -115,9 +115,11 @@ defmodule QuckAppRealtime.PresenceCleanup do
         # Find users in Redis but not in ETS (missed connection)
         missing_in_ets = redis_user_ids -- ets_user_ids
 
+        current_node = to_string(node())
+
         Enum.each(missing_in_ets, fn user_id ->
           case Redis.get_user_presence(user_id) do
-            %{"node" => node_name} when node_name == to_string(node()) ->
+            %{"node" => ^current_node} ->
               # This node should have this user - clean up Redis
               Logger.debug("Cleaning orphaned Redis presence for #{user_id}")
               Redis.set_user_offline(user_id)

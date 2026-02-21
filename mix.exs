@@ -33,6 +33,7 @@ defmodule QuckAppRealtime.MixProject do
       {:plug_cowboy, "~> 2.6"},
       {:jason, "~> 1.4"},
       {:cors_plug, "~> 3.0"},
+      {:gettext, "~> 0.24"},
 
       # Authentication
       {:guardian, "~> 2.3"},
@@ -50,7 +51,6 @@ defmodule QuckAppRealtime.MixProject do
 
       # Kafka for event streaming
       {:brod, "~> 3.16"},            # Kafka client
-      {:kafka_ex, "~> 0.13"},        # Alternative Kafka client
 
       # HTTP Client
       {:finch, "~> 0.18"},

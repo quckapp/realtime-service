@@ -341,6 +341,7 @@ defmodule QuckAppRealtime.Kafka.Consumer do
             @group_id,
             [topic],
             _config = [],
+            _consumer_config = [begin_offset: :latest],
             _callback_module = __MODULE__,
             _callback_init_args = []
           )

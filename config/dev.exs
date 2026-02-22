@@ -47,10 +47,9 @@ config :quckapp_realtime, :cluster_dns, nil
 # Kafka Event Streaming
 # ========================================
 config :quckapp_realtime, :kafka,
-  enabled: System.get_env("KAFKA_ENABLED", "false") == "true",
-  brokers: [
-    {System.get_env("KAFKA_HOST", "localhost"), String.to_integer(System.get_env("KAFKA_PORT", "9092"))}
-  ]
+  enabled: false,
+  brokers: [{~c"localhost", 9092}],
+  consumer_group: "realtime-service-group-dev"
 
 # Guardian JWT
 config :quckapp_realtime, QuckAppRealtime.Guardian,

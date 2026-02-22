@@ -1,5 +1,15 @@
 defmodule QuckAppRealtimeWeb.MetricsController do
   use QuckAppRealtimeWeb, :controller
+  use OpenApiSpex.ControllerSpecs
+
+  tags ["Metrics"]
+
+  operation :index,
+    summary: "Get Prometheus metrics",
+    description: "Returns Prometheus-formatted metrics for monitoring",
+    responses: [
+      ok: {"Prometheus metrics", "text/plain", %OpenApiSpex.Schema{type: :string}}
+    ]
 
   def index(conn, _params) do
     metrics = """

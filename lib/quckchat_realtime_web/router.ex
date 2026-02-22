@@ -3,12 +3,31 @@ defmodule QuckAppRealtimeWeb.Router do
 
   pipeline :api do
     plug :accepts, ["json"]
+    plug OpenApiSpex.Plug.PutApiSpec, module: QuckAppRealtimeWeb.ApiSpec
   end
 
   pipeline :authenticated do
     plug :accepts, ["json"]
+    plug OpenApiSpex.Plug.PutApiSpec, module: QuckAppRealtimeWeb.ApiSpec
     # Add authentication plug here
     # plug QuckAppRealtimeWeb.Plugs.AuthPlug
+  end
+
+  pipeline :browser do
+    plug :accepts, ["html"]
+  end
+
+  # Swagger UI endpoints
+  scope "/swagger", QuckAppRealtimeWeb do
+    pipe_through :browser
+
+    get "/", SwaggerController, :index
+  end
+
+  scope "/swagger", QuckAppRealtimeWeb do
+    pipe_through :api
+
+    get "/spec", SwaggerController, :spec
   end
 
   # Health check endpoints

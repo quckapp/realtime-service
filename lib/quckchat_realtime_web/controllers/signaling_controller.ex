@@ -8,8 +8,20 @@ defmodule QuckAppRealtimeWeb.SignalingController do
   - WebRTC diagnostics
   """
   use QuckAppRealtimeWeb, :controller
+  use OpenApiSpex.ControllerSpecs
 
   alias QuckAppRealtime.SignalingServer
+  alias QuckAppRealtimeWeb.Schemas.Signaling
+
+  tags ["Signaling"]
+
+  operation :ice_config,
+    summary: "Get ICE configuration",
+    description: "Get full ICE server configuration for WebRTC connections (STUN/TURN servers)",
+    responses: [
+      ok: {"ICE configuration", "application/json", Signaling.IceConfigResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "Get full ICE configuration for WebRTC"
   def ice_config(conn, _params) do
@@ -20,6 +32,15 @@ defmodule QuckAppRealtimeWeb.SignalingController do
     |> put_status(:ok)
     |> json(%{success: true, config: config})
   end
+
+  operation :turn_credentials,
+    summary: "Generate TURN credentials",
+    description: "Generate time-limited TURN credentials for WebRTC relay connections",
+    request_body: {"TURN credentials request", "application/json", Signaling.TurnCredentialsRequest, required: false},
+    responses: [
+      ok: {"TURN credentials", "application/json", Signaling.TurnCredentialsResponse}
+    ],
+    security: [%{"bearerAuth" => []}]
 
   @doc "Generate time-limited TURN credentials"
   def turn_credentials(conn, _params) do

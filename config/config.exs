@@ -29,5 +29,8 @@ config :logger, :console,
 # JSON library
 config :phoenix, :json_library, Jason
 
-# Import environment specific config
-import_config "#{config_env()}.exs"
+# Import environment-specific config
+# Environments: dev, test, local, qa, uat1, uat2, uat3, staging, production, live, prod
+if File.exists?("config/#{config_env()}.exs") do
+  import_config "#{config_env()}.exs"
+end

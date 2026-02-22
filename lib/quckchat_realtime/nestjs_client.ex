@@ -10,9 +10,17 @@ defmodule QuckAppRealtime.NestJSClient do
   - Notifications Service: Send push notifications
 
   All calls use the internal API endpoints with service-to-service authentication.
+
+  ## Circuit Breaker Protection
+  All HTTP calls are wrapped with circuit breaker protection via the
+  `QuckAppRealtime.CircuitBreaker` module. When the NestJS backend is
+  unavailable or responding slowly, the circuit will open and calls
+  will fail fast to prevent cascade failures.
   """
 
   require Logger
+
+  alias QuckAppRealtime.CircuitBreaker
 
   @default_timeout 10_000
 
@@ -246,6 +254,12 @@ defmodule QuckAppRealtime.NestJSClient do
   end
 
   defp request(method, path, body \\ nil) do
+    CircuitBreaker.call(:nestjs, fn ->
+      do_request(method, path, body)
+    end, default: {:error, %{status: 0, error: %{"message" => "NestJS service unavailable (circuit open)"}}})
+  end
+
+  defp do_request(method, path, body) do
     base_url = get_base_url()
     url = base_url <> path
     headers = get_headers()

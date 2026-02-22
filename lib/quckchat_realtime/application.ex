@@ -23,6 +23,16 @@ defmodule QuckAppRealtime.Application do
 
   @impl true
   def start(_type, _args) do
+    # Initialize circuit breakers
+    QuckAppRealtime.CircuitBreaker.init()
+
+    # Conditionally include Repo if DATABASE_URL is configured
+    repo_children = if System.get_env("DATABASE_URL") do
+      [QuckAppRealtime.Repo]
+    else
+      []
+    end
+
     children = [
       # Telemetry supervisor
       QuckAppRealtimeWeb.Telemetry,
@@ -31,8 +41,8 @@ defmodule QuckAppRealtime.Application do
       # Core Infrastructure
       # ========================================
 
-      # MySQL Repo for persistent storage
-      QuckAppRealtime.Repo,
+      # MySQL Repo for persistent storage (optional)
+    ] ++ repo_children ++ [
 
       # PubSub for distributed messaging
       {Phoenix.PubSub, name: QuckAppRealtime.PubSub},
@@ -40,8 +50,18 @@ defmodule QuckAppRealtime.Application do
       # Redis connection pool (for cross-node sync)
       QuckAppRealtime.Redis,
 
+      # MongoDB connection pool (for conversations/messages)
+      QuckAppRealtime.Mongo,
+
       # HTTP client for NestJS backend communication
       {Finch, name: QuckAppRealtime.Finch},
+
+      # ========================================
+      # Algorithm Libraries
+      # ========================================
+
+      # Hash ring for consistent distribution
+      QuckAppRealtime.Distribution,
 
       # ========================================
       # WhatsApp-Style Components

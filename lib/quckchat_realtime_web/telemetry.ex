@@ -75,17 +75,30 @@ defmodule QuckAppRealtimeWeb.Telemetry do
   end
 
   def measure_connected_users do
-    count = QuckAppRealtime.CallManager.connected_users_count()
+    count = safe_call(QuckAppRealtime.CallManager, :connected_users_count, [], 0)
     :telemetry.execute([:quckapp, :connected_users], %{count: count}, %{})
   end
 
   def measure_active_calls do
-    count = QuckAppRealtime.CallManager.active_calls_count()
+    count = safe_call(QuckAppRealtime.CallManager, :active_calls_count, [], 0)
     :telemetry.execute([:quckapp, :active_calls], %{count: count}, %{})
   end
 
   def measure_active_huddles do
-    count = QuckAppRealtime.HuddleManager.active_huddles_count()
+    count = safe_call(QuckAppRealtime.HuddleManager, :active_huddles_count, [], 0)
     :telemetry.execute([:quckapp, :active_huddles], %{count: count}, %{})
+  end
+
+  # Safely call a GenServer function, returning default if process not available
+  defp safe_call(module, function, args, default) do
+    if Process.whereis(module) do
+      apply(module, function, args)
+    else
+      default
+    end
+  rescue
+    _ -> default
+  catch
+    :exit, _ -> default
   end
 end

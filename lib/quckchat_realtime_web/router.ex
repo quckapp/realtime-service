@@ -46,9 +46,9 @@ defmodule QuckAppRealtimeWeb.Router do
     get "/", MetricsController, :index
   end
 
-  # API endpoints for managing state — namespaced under /api/realtime
+  # API endpoints for managing state — namespaced under /api/v1/realtime
   # to avoid conflicts with dedicated services (call-service, presence-service, etc.)
-  scope "/api/realtime", QuckAppRealtimeWeb do
+  scope "/api/v1/realtime", QuckAppRealtimeWeb do
     pipe_through :api
 
     # Call management

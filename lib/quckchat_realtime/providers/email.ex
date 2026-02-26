@@ -160,7 +160,7 @@ defmodule QuckAppRealtime.Providers.Email do
       "content" => [%{"type" => content_type(opts), "value" => body}]
     }
 
-    case Req.post("https://api.sendgrid.com/v3/mail/send",
+    case Req.post("https://api.sendgrid.com/v1/mail/send",
       json: payload,
       headers: [{"Authorization", "Bearer #{api_key}"}]
     ) do
@@ -214,7 +214,7 @@ defmodule QuckAppRealtime.Providers.Email do
     api_key = Keyword.get(state.config, :api_key)
     domain = Keyword.get(state.config, :domain)
 
-    url = "https://api.mailgun.net/v3/#{domain}/messages"
+    url = "https://api.mailgun.net/v1/#{domain}/messages"
 
     form_data = [
       {"from", state.from_address},
